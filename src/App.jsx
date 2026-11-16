@@ -10,7 +10,6 @@ import {
   collection, 
   doc, 
   setDoc, 
-  getDoc, 
   getDocs, 
   onSnapshot, 
   updateDoc, 
@@ -18,14 +17,14 @@ import {
 } from 'firebase/firestore';
 import {
   BookOpen, CheckCircle2, Clock, Award, Shield, User, Lock, KeyRound,
-  LogOut, Plus, Trash2, Edit3, FileText, ChevronRight, ChevronLeft,
-  AlertCircle, Check, X, Search, Filter, Eye, EyeOff, LayoutDashboard,
-  GraduationCap, Sparkles, RefreshCw, Copy, ArrowRight, Bookmark,
-  BarChart3, Users, HelpCircle, Save, RotateCcw, Flag, Printer
+  LogOut, Plus, Trash2, Edit3, ChevronLeft,
+  AlertCircle, Search, Eye, EyeOff,
+  GraduationCap, ArrowRight,
+  BarChart3, Users, Printer, TrendingUp, TrendingDown, Timer
 } from 'lucide-react';
 
 // ============================================================================
-// FIREBASE CONFIGURATION (REPLACE THESE VALUES WITH YOUR OWN FIREBASE KEYS)
+// FIREBASE CONFIGURATION (REPLACE THESE 6 VALUES WITH YOUR OWN FIREBASE KEYS)
 // ============================================================================
 const firebaseConfig = {
   apiKey: "AIzaSyDf2OFI0ki9r9vSVxdgfps1Fuxm85vjp2g",
@@ -33,8 +32,9 @@ const firebaseConfig = {
   projectId: "pathshala-portal-2000",
   storageBucket: "pathshala-portal-2000.firebasestorage.app",
   messagingSenderId: "42246222677",
-  appId: "1:42246222677:web:71e12251953034fb9735dc"
+  appId: "1:42246222677:web:71e12251953034fb9735dc",
 };
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -86,129 +86,11 @@ const DEFAULT_MOCKS = [
       },
       {
         id: 'q2',
-        section: 'General Intelligence & Reasoning',
-        text: 'In a certain code language, "MADRAS" is written as "NBESBT". How is "BOMBAY" written in that code?',
-        options: ['CPNCBX', 'CPNCBZ', 'CPOCBZ', 'CQOCBZ'],
-        correctIndex: 1,
-        explanation: 'Each letter is shifted +1 forward in the English alphabet: B+1=C, O+1=P, M+1=N, B+1=C, A+1=B, Y+1=Z.'
-      },
-      {
-        id: 'q3',
         section: 'General Awareness',
         text: 'Which Article of the Constitution of India deals with the Right to Constitutional Remedies, termed by Dr. B.R. Ambedkar as the "Heart and Soul" of the Constitution?',
         options: ['Article 14', 'Article 19', 'Article 21A', 'Article 32'],
         correctIndex: 3,
         explanation: 'Article 32 empowers citizens to move the Supreme Court directly for the enforcement of Fundamental Rights.'
-      },
-      {
-        id: 'q4',
-        section: 'General Awareness',
-        text: 'The Battle of Plassey was fought in 1757 on the banks of which river?',
-        options: ['Damodar', 'Bhagirathi (Hooghly)', 'Subarnarekha', 'Teesta'],
-        correctIndex: 1,
-        explanation: 'The Battle of Plassey (23 June 1757) took place on the banks of the Bhagirathi-Hooghly river near Palashi.'
-      },
-      {
-        id: 'q5',
-        section: 'Quantitative Aptitude',
-        text: 'If x + (1/x) = 5, find the value of x² + (1/x²).',
-        options: ['25', '23', '27', '21'],
-        correctIndex: 1,
-        explanation: 'Squaring both sides: (x + 1/x)² = 25 => x² + 1/x² + 2 = 25 => x² + 1/x² = 23.'
-      },
-      {
-        id: 'q6',
-        section: 'English Comprehension',
-        text: 'Select the most appropriate synonym of the given word: EPHEMERAL',
-        options: ['Perpetual', 'Transitory', 'Enduring', 'Abundant'],
-        correctIndex: 1,
-        explanation: 'Ephemeral means lasting for a very short time; transitory is its closest synonym.'
-      }
-    ]
-  },
-  {
-    id: 'mock-rrb-ntpc-01',
-    title: 'Railway RRB NTPC CBT-1 Mega Mock #01',
-    category: 'Railway',
-    durationMinutes: 90,
-    positiveMark: 1.0,
-    negativeMark: 0.33,
-    instructions: '1 mark will be awarded for every correct answer and 1/3rd mark will be deducted for every incorrect answer.',
-    questions: [
-      {
-        id: 'rq1',
-        section: 'General Science',
-        text: 'What is the SI unit of electrical resistivity?',
-        options: ['Ohm', 'Ohm-metre (Ω·m)', 'Siemens', 'Ampere-metre'],
-        correctIndex: 1,
-        explanation: 'Resistivity ρ = R·A/L, which has the SI unit Ohm-metre (Ω·m).'
-      },
-      {
-        id: 'rq2',
-        section: 'General Science',
-        text: 'Which gas is primarily responsible for the sharp pungent smell near public urinals due to bacterial decomposition of urea?',
-        options: ['Sulphur Dioxide', 'Ammonia', 'Methane', 'Hydrogen Sulphide'],
-        correctIndex: 1,
-        explanation: 'Urea decomposes in the presence of bacteria to release Ammonia (NH₃).'
-      },
-      {
-        id: 'rq3',
-        section: 'Mathematics',
-        text: 'A train 240 m long passes a pole in 24 seconds. How long will it take to pass a platform 650 m long?',
-        options: ['65 sec', '89 sec', '100 sec', '150 sec'],
-        correctIndex: 1,
-        explanation: 'Speed = 240/24 = 10 m/s. Total distance = 240 + 650 = 890 m. Time = 890/10 = 89 seconds.'
-      },
-      {
-        id: 'rq4',
-        section: 'General Awareness',
-        text: 'Where is the headquarters of Eastern Railway Zone located?',
-        options: ['Hajipur', 'Kolkata', 'Bhubaneswar', 'Maligaon'],
-        correctIndex: 1,
-        explanation: 'Eastern Railway (ER) is headquartered at Fairlie Place, Kolkata.'
-      }
-    ]
-  },
-  {
-    id: 'mock-wbpsc-clerk-01',
-    title: 'WBPSC Clerkship & Miscellaneous Prelims Mock #01',
-    category: 'WBPSC',
-    durationMinutes: 90,
-    positiveMark: 1.0,
-    negativeMark: 0.25,
-    instructions: 'Total 100 Marks pattern. 1 mark for correct answer, 0.25 negative marking for each wrong response.',
-    questions: [
-      {
-        id: 'wq1',
-        section: 'General Studies',
-        text: 'Who founded the "Atmiya Sabha" in Calcutta in 1815 to propagate monotheistic ideals of Vedanta?',
-        options: ['Ishwar Chandra Vidyasagar', 'Raja Ram Mohan Roy', 'Debendranath Tagore', 'Keshab Chandra Sen'],
-        correctIndex: 1,
-        explanation: 'Raja Ram Mohan Roy established Atmiya Sabha in Kolkata in 1815.'
-      },
-      {
-        id: 'wq2',
-        section: 'General Studies',
-        text: 'Which district of West Bengal shares international borders with three countries (Nepal, Bhutan, and Bangladesh)?',
-        options: ['Jalpaiguri', 'Darjeeling', 'Kalimpong', 'Alipurduar'],
-        correctIndex: 1,
-        explanation: 'Darjeeling district borders Nepal to the west, Bhutan/Sikkim to the north-east, and Bangladesh to the south.'
-      },
-      {
-        id: 'wq3',
-        section: 'Arithmetic',
-        text: 'If the ratio of cost price to selling price of an article is 5 : 6, what is the profit percentage?',
-        options: ['15%', '20%', '25%', '16.67%'],
-        correctIndex: 1,
-        explanation: 'Profit = 6 - 5 = 1. Profit % = (1/5) × 100 = 20%.'
-      },
-      {
-        id: 'wq4',
-        section: 'English',
-        text: 'Fill in the blank with the appropriate preposition: "He was acquitted ______ all the charges levelled against him."',
-        options: ['from', 'of', 'with', 'for'],
-        correctIndex: 1,
-        explanation: 'The verb "acquit" is followed by the preposition "of" (acquitted of charges).'
       }
     ]
   }
@@ -227,71 +109,8 @@ const DEFAULT_NOTES = [
 • Right to Equality (Articles 14–18):
   - Art 14: Equality before law & equal protection of laws.
   - Art 17: Abolition of Untouchability (Absolute right).
-  - Art 18: Abolition of Titles (except military & academic).
-• Right to Freedom (Articles 19–22):
-  - Art 19(1)(a): Freedom of speech and expression.
-  - Art 21: Protection of life and personal liberty.
-  - Art 21A: Free and compulsory education (6–14 years) — added by 86th Amendment Act, 2002.
 • Right to Constitutional Remedies (Article 32):
-  - 5 Writs: Habeas Corpus, Mandamus, Prohibition, Certiorari, Quo-Warranto.
-
-2. LANDMARK CONSTITUTIONAL AMENDMENTS
-• 42nd Amendment (1976) — "Mini Constitution": Added Socialist, Secular, Integrity to Preamble; added Fundamental Duties (Part IVA, Art 51A).
-• 44th Amendment (1978): Removed Right to Property from Fundamental Rights (moved to Art 300A as a legal right).
-• 61st Amendment (1989): Reduced voting age from 21 years to 18 years.
-• 101st Amendment (2016): Goods and Services Tax (GST).
-
-3. QUICK TRICK FOR 12 SCHEDULES ("TEARS OF OLD PM")
-T - Territories | E - Emoluments | A - Affirmations | R - Rajya Sabha | S - Scheduled Areas | O - Other Tribal Areas | F - Federal List | O - Official Languages | L - Land Reforms | D - Defection (52nd Amend) | P - Panchayats (73rd Amend) | M - Municipalities (74th Amend).`
-  },
-  {
-    id: 'note-science-02',
-    title: 'Railway Special: Physics Formulas, SI Units & Chemical Compounds',
-    category: 'Railway',
-    subject: 'General Science',
-    readTime: '6 min read',
-    updatedAt: '2026-11-12',
-    summary: 'Frequently repeated RRB NTPC & Group-D science facts: common names of chemicals, mirror/lens rules, and SI units.',
-    content: `1. IMPORTANT CHEMICAL COMPOUNDS & COMMON NAMES
-• Baking Soda: Sodium Bicarbonate (NaHCO₃)
-• Washing Soda: Sodium Carbonate Decahydrate (Na₂CO₃·10H₂O)
-• Bleaching Powder: Calcium Oxychloride (CaOCl₂)
-• Plaster of Paris (POP): Calcium Sulphate Hemihydrate (CaSO₄·½H₂O)
-• Blue Vitriol: Copper Sulphate (CuSO₄·5H₂O)
-• Laughing Gas: Nitrous Oxide (N₂O)
-
-2. MIRROR & LENS QUICK REVISION
-• Concave Mirror: Used in headlights, shaving mirrors, solar furnaces, and by dentists (forms enlarged virtual image when object is between P and F).
-• Convex Mirror: Used as rear-view mirrors in vehicles (always forms virtual, erect, and diminished image with wide field of view).
-• Power of Lens (P) = 1 / f (in metres). Unit: Dioptre (D). Convex lens has +ve power; Concave lens has -ve power.
-
-3. ESSENTIAL SI UNITS
-• Luminous Intensity: Candela (cd)
-• Magnetic Flux: Weber (Wb)
-• Magnetic Flux Density: Tesla (T)
-• Frequency: Hertz (Hz)
-• Electric Charge: Coulomb (C)`
-  },
-  {
-    id: 'note-wb-03',
-    title: 'West Bengal Geography & Bengal Renaissance Master Notes',
-    category: 'WBPSC',
-    subject: 'WB Static GK & History',
-    readTime: '10 min read',
-    updatedAt: '2026-11-14',
-    summary: 'Complete revision notes on West Bengal physiography, rivers, national parks, and 19th-century socio-religious reform movements.',
-    content: `1. WEST BENGAL GEOGRAPHY HIGHLIGHTS
-• Latitudinal Extent: 21°25'N to 27°13'N | Longitudinal Extent: 85°50'E to 89°50'E.
-• Highest Peak: Sandakphu (3,636 m) on the Singalila Ridge in Darjeeling.
-• International Boundaries: Bangladesh (2,217 km — longest), Nepal, and Bhutan.
-• State Symbols: Animal — Fishing Cat; Bird — White-throated Kingfisher; Tree — Chatim; Flower — Night-flowering Jasmine (Shiuli).
-• Major National Parks: Sundarbans (South 24 Parganas), Jaldapara (Alipurduar), Gorumara (Jalpaiguri), Buxa Tiger Reserve (Alipurduar), Singalila & Neora Valley (Darjeeling/Kalimpong).
-
-2. BENGAL RENAISSANCE & REFORM MOVEMENTS
-• Brahmo Samaj (1828): Founded by Raja Ram Mohan Roy (published Sambad Kaumudi & Mirat-ul-Akhbar).
-• Tattwabodhini Sabha (1839): Founded by Debendranath Tagore.
-• Widow Remarriage Act (1856): Passed due to the tireless efforts of Ishwar Chandra Vidyasagar.
-• Young Bengal Movement: Led by Henry Louis Vivian Derozio at Hindu College.`
+  - 5 Writs: Habeas Corpus, Mandamus, Prohibition, Certiorari, Quo-Warranto.`
   }
 ];
 
@@ -313,42 +132,40 @@ function formatTime(totalSeconds) {
   return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 }
 
+function formatDurationHuman(seconds) {
+  if (!seconds || seconds <= 0) return '0s';
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  if (mins === 0) return `${secs}s`;
+  return `${mins}m ${secs}s`;
+}
+
 // ============================================================================
 // MAIN APPLICATION COMPONENT
 // ============================================================================
 export default function App() {
-  // Firebase Auth & Sync State
   const [fbUser, setFbUser] = useState(null);
-  const [dbReady, setDbReady] = useState(false);
-
-  // Portal Collections State
   const [users, setUsers] = useState(DEFAULT_USERS);
   const [mocks, setMocks] = useState(DEFAULT_MOCKS);
   const [notes, setNotes] = useState(DEFAULT_NOTES);
   const [attempts, setAttempts] = useState([]);
 
-  // Session & View Routing State
   const [currentUser, setCurrentUser] = useState(null);
-  const [authView, setAuthView] = useState('login'); // 'login' | 'register' | 'forgot' | 'registered_success'
-  const [selectedRoleTab, setSelectedRoleTab] = useState('student'); // 'student' | 'admin'
+  const [authView, setAuthView] = useState('login');
+  const [selectedRoleTab, setSelectedRoleTab] = useState('student');
   const [newlyCreatedAccount, setNewlyCreatedAccount] = useState(null);
 
-  // Active Exam / Study State
   const [activeMock, setActiveMock] = useState(null);
-  const [examPhase, setExamPhase] = useState('instructions'); // 'instructions' | 'live' | 'result'
+  const [examPhase, setExamPhase] = useState('instructions');
   const [lastAttemptResult, setLastAttemptResult] = useState(null);
   const [readingNote, setReadingNote] = useState(null);
 
-  // Toast Notification
   const [toast, setToast] = useState(null);
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3500);
   };
 
-  // --------------------------------------------------------------------------
-  // 1. INITIALIZE FIREBASE AUTH & SEED INITIAL DATA
-  // --------------------------------------------------------------------------
   useEffect(() => {
     const initAuth = async () => {
       try {
@@ -358,9 +175,7 @@ export default function App() {
       }
     };
     initAuth();
-    const unsub = onAuthStateChanged(auth, (user) => {
-      setFbUser(user);
-    });
+    const unsub = onAuthStateChanged(auth, (user) => setFbUser(user));
     return () => unsub();
   }, []);
 
@@ -376,47 +191,33 @@ export default function App() {
       try {
         const userSnap = await getDocs(usersCol);
         if (userSnap.empty) {
-          for (const u of DEFAULT_USERS) {
-            await setDoc(doc(usersCol, u.id), u);
-          }
+          for (const u of DEFAULT_USERS) await setDoc(doc(usersCol, u.id), u);
         }
         const mockSnap = await getDocs(mocksCol);
         if (mockSnap.empty) {
-          for (const m of DEFAULT_MOCKS) {
-            await setDoc(doc(mocksCol, m.id), m);
-          }
+          for (const m of DEFAULT_MOCKS) await setDoc(doc(mocksCol, m.id), m);
         }
         const noteSnap = await getDocs(notesCol);
         if (noteSnap.empty) {
-          for (const n of DEFAULT_NOTES) {
-            await setDoc(doc(notesCol, n.id), n);
-          }
+          for (const n of DEFAULT_NOTES) await setDoc(doc(notesCol, n.id), n);
         }
-        setDbReady(true);
       } catch (err) {
         console.error('Firestore seed error:', err);
-        setDbReady(true);
       }
     };
 
     seedIfEmpty();
 
     const unsubUsers = onSnapshot(usersCol, (snap) => {
-      if (!snap.empty) {
-        setUsers(snap.docs.map(d => d.data()));
-      }
+      if (!snap.empty) setUsers(snap.docs.map(d => d.data()));
     }, (err) => console.error(err));
 
     const unsubMocks = onSnapshot(mocksCol, (snap) => {
-      if (!snap.empty) {
-        setMocks(snap.docs.map(d => d.data()));
-      }
+      if (!snap.empty) setMocks(snap.docs.map(d => d.data()));
     }, (err) => console.error(err));
 
     const unsubNotes = onSnapshot(notesCol, (snap) => {
-      if (!snap.empty) {
-        setNotes(snap.docs.map(d => d.data()));
-      }
+      if (!snap.empty) setNotes(snap.docs.map(d => d.data()));
     }, (err) => console.error(err));
 
     const unsubAttempts = onSnapshot(attemptsCol, (snap) => {
@@ -431,7 +232,6 @@ export default function App() {
     };
   }, [fbUser]);
 
-  // Keep currentUser synced if password/profile changes
   useEffect(() => {
     if (currentUser) {
       const updated = users.find(u => u.id === currentUser.id);
@@ -439,9 +239,6 @@ export default function App() {
     }
   }, [users]);
 
-  // --------------------------------------------------------------------------
-  // 2. AUTHENTICATION HANDLERS
-  // --------------------------------------------------------------------------
   const handleLogin = (loginId, password, role) => {
     const cleanId = loginId.trim().toUpperCase();
     const found = users.find(
@@ -556,9 +353,6 @@ export default function App() {
     showToast('Logged out safely.');
   };
 
-  // --------------------------------------------------------------------------
-  // 3. ADMIN CRUD HANDLERS
-  // --------------------------------------------------------------------------
   const saveMockToDb = async (mockObj) => {
     try {
       if (fbUser) {
@@ -632,12 +426,19 @@ export default function App() {
     }
   };
 
-  // --------------------------------------------------------------------------
-  // 4. VIEW ROUTING
-  // --------------------------------------------------------------------------
+  const handleOpenSavedScorecard = (attemptRecord) => {
+    const matchedMock = mocks.find(m => m.id === attemptRecord.mockId);
+    if (!matchedMock) {
+      showToast('Original mock test was removed by admin.', 'error');
+      return;
+    }
+    setActiveMock(matchedMock);
+    setLastAttemptResult(attemptRecord);
+    setExamPhase('result');
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
-      {/* Global Toast Notification */}
       {toast && (
         <div className={`fixed bottom-5 right-5 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-xl text-white text-sm font-medium transition-all ${
           toast.type === 'error' ? 'bg-rose-600' : 'bg-slate-900 border border-slate-700'
@@ -647,7 +448,6 @@ export default function App() {
         </div>
       )}
 
-      {/* UNAUTHENTICATED PORTAL: LOGIN / REGISTER / FORGOT PASSWORD */}
       {!currentUser && (
         <AuthPortal
           authView={authView}
@@ -663,7 +463,6 @@ export default function App() {
         />
       )}
 
-      {/* AUTHENTICATED: TCS iON CBT EXAM ENGINE */}
       {currentUser && currentUser.role === 'student' && activeMock && (
         <>
           {examPhase === 'instructions' && (
@@ -686,6 +485,7 @@ export default function App() {
             <ExamScorecardScreen
               mock={activeMock}
               attempt={lastAttemptResult}
+              allMockAttempts={attempts.filter(a => a.mockId === activeMock.id)}
               onBackToDashboard={() => {
                 setActiveMock(null);
                 setLastAttemptResult(null);
@@ -695,7 +495,6 @@ export default function App() {
         </>
       )}
 
-      {/* AUTHENTICATED: STUDY NOTE READER MODAL/SCREEN */}
       {currentUser && readingNote && (
         <StudyNoteReader
           note={readingNote}
@@ -703,24 +502,24 @@ export default function App() {
         />
       )}
 
-      {/* AUTHENTICATED: STUDENT DASHBOARD */}
       {currentUser && currentUser.role === 'student' && !activeMock && !readingNote && (
         <StudentDashboard
           student={currentUser}
           mocks={mocks}
           notes={notes}
           attempts={attempts.filter(a => a.studentId === currentUser.id)}
+          allAttempts={attempts}
           onStartMock={(mock) => {
             setActiveMock(mock);
             setExamPhase('instructions');
           }}
+          onViewAttemptReport={handleOpenSavedScorecard}
           onOpenNote={(note) => setReadingNote(note)}
           onChangePassword={handleChangePassword}
           onLogout={handleLogout}
         />
       )}
 
-      {/* AUTHENTICATED: ADMIN CONTROL PANEL */}
       {currentUser && currentUser.role === 'admin' && !readingNote && (
         <AdminDashboard
           admin={currentUser}
@@ -742,7 +541,7 @@ export default function App() {
 }
 
 // ============================================================================
-// COMPONENT 1: DUAL-ROLE AUTHENTICATION PORTAL (LOGIN, REGISTER, FORGOT)
+// COMPONENT 1: DUAL-ROLE AUTHENTICATION PORTAL
 // ============================================================================
 function AuthPortal({
   authView, setAuthView, selectedRoleTab, setSelectedRoleTab,
@@ -753,14 +552,12 @@ function AuthPortal({
   const [showPass, setShowPass] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Registration form state
   const [regName, setRegName] = useState('');
   const [regEmail, setRegEmail] = useState('');
   const [regPhone, setRegPhone] = useState('');
   const [regExam, setRegExam] = useState('SSC');
   const [regCustomPass, setRegCustomPass] = useState('');
 
-  // Forgot password state
   const [fpRole, setFpRole] = useState('student');
   const [fpId, setFpId] = useState('');
   const [fpEmail, setFpEmail] = useState('');
@@ -820,7 +617,6 @@ function AuthPortal({
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-slate-950">
-      {/* Left Hero Branding Panel */}
       <div className="lg:w-5/12 bg-gradient-to-br from-indigo-950 via-slate-900 to-blue-950 text-white p-8 lg:p-12 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-800">
         <div>
           <div className="flex items-center gap-3 mb-8">
@@ -837,7 +633,7 @@ function AuthPortal({
             Real <span className="text-amber-400">TCS iON Pattern</span> Mock Tests & Exam Capsules.
           </h2>
           <p className="text-slate-300 text-sm leading-relaxed mb-8">
-            Practice in an authentic Computer-Based Test interface with live section switching, question status palettes, negative marking analytics, and curated notes for SSC, Railway, and WBPSC aspirants.
+            Practice in an authentic Computer-Based Test interface with live section switching, question status palettes, negative marking analytics, All-India Rank, and per-question timing diagnostics.
           </p>
 
           <div className="grid grid-cols-3 gap-3 mb-8">
@@ -880,11 +676,8 @@ function AuthPortal({
         </div>
       </div>
 
-      {/* Right Authentication Form Panel */}
       <div className="lg:w-7/12 bg-slate-50 flex items-center justify-center p-6 lg:p-12">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200/80 p-7 sm:p-8">
-          
-          {/* VIEW A: LOGIN */}
           {authView === 'login' && (
             <>
               <div className="mb-6">
@@ -892,7 +685,6 @@ function AuthPortal({
                 <p className="text-sm text-slate-500 mt-1">Select your role and enter your Unique Login ID.</p>
               </div>
 
-              {/* Dual Role Switcher */}
               <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl mb-6">
                 <button
                   type="button"
@@ -1008,7 +800,6 @@ function AuthPortal({
             </>
           )}
 
-          {/* VIEW B: STUDENT REGISTRATION */}
           {authView === 'register' && (
             <>
               <div className="mb-5">
@@ -1105,7 +896,6 @@ function AuthPortal({
             </>
           )}
 
-          {/* VIEW C: REGISTRATION SUCCESS CREDENTIALS CARD */}
           {authView === 'registered_success' && newlyCreatedAccount && (
             <div className="text-center">
               <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-4">
@@ -1146,7 +936,6 @@ function AuthPortal({
             </div>
           )}
 
-          {/* VIEW D: FORGOT PASSWORD */}
           {authView === 'forgot' && (
             <>
               <div className="mb-5">
@@ -1236,13 +1025,13 @@ function AuthPortal({
 }
 
 // ============================================================================
-// COMPONENT 2: STUDENT DASHBOARD (MOCKS BY STREAM, NOTES, HISTORY, PASSWORD)
+// COMPONENT 2: STUDENT DASHBOARD
 // ============================================================================
 function StudentDashboard({
-  student, mocks, notes, attempts, onStartMock, onOpenNote, onChangePassword, onLogout
+  student, mocks, notes, attempts, allAttempts, onStartMock, onViewAttemptReport, onOpenNote, onChangePassword, onLogout
 }) {
-  const [activeTab, setActiveTab] = useState('mocks'); // 'mocks' | 'notes' | 'history' | 'profile'
-  const [streamFilter, setStreamFilter] = useState('ALL'); // 'ALL' | 'SSC' | 'Railway' | 'WBPSC'
+  const [activeTab, setActiveTab] = useState('mocks');
+  const [streamFilter, setStreamFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredMocks = mocks.filter(m => {
@@ -1259,9 +1048,16 @@ function StudentDashboard({
     return matchesStream && matchesSearch;
   });
 
+  const getRankForAttempt = (att) => {
+    const peers = allAttempts
+      .filter(a => a.mockId === att.mockId)
+      .sort((a, b) => (b.score - a.score) || (b.accuracy - a.accuracy) || ((a.totalTimeSeconds || 99999) - (b.totalTimeSeconds || 99999)));
+    const idx = peers.findIndex(p => p.id === att.id);
+    return idx >= 0 ? `#${idx + 1} / ${peers.length}` : '-';
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
-      {/* Top Navbar */}
       <header className="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -1292,15 +1088,13 @@ function StudentDashboard({
         </div>
       </header>
 
-      {/* Main Container */}
       <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 flex-1">
-        {/* Navigation Tabs */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <div className="flex flex-wrap gap-2 bg-white p-1.5 rounded-xl border border-slate-200 shadow-sm">
             {[
               { id: 'mocks', label: 'CBT Mock Tests', icon: Clock },
               { id: 'notes', label: 'Study Notes', icon: BookOpen },
-              { id: 'history', label: `My Results (${attempts.length})`, icon: BarChart3 },
+              { id: 'history', label: `My Results & Rank (${attempts.length})`, icon: BarChart3 },
               { id: 'profile', label: 'Profile & Password', icon: KeyRound }
             ].map(tab => {
               const Icon = tab.icon;
@@ -1321,7 +1115,6 @@ function StudentDashboard({
             })}
           </div>
 
-          {/* 3-Stream Filter (SSC, Railway, WBPSC) */}
           {(activeTab === 'mocks' || activeTab === 'notes') && (
             <div className="flex flex-wrap items-center gap-2">
               {['ALL', 'SSC', 'Railway', 'WBPSC'].map(stream => (
@@ -1341,7 +1134,6 @@ function StudentDashboard({
           )}
         </div>
 
-        {/* Search Bar for Mocks & Notes */}
         {(activeTab === 'mocks' || activeTab === 'notes') && (
           <div className="relative max-w-md mb-6">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
@@ -1355,61 +1147,62 @@ function StudentDashboard({
           </div>
         )}
 
-        {/* TAB 1: CBT MOCK TESTS */}
         {activeTab === 'mocks' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filteredMocks.map(mock => (
-              <div key={mock.id} className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between gap-2 mb-3">
-                    <span className={`text-xs font-extrabold px-2.5 py-1 rounded-md ${
-                      mock.category === 'SSC' ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' :
-                      mock.category === 'Railway' ? 'bg-sky-50 text-sky-700 border border-sky-200' :
-                      'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                    }`}>
-                      {mock.category}
-                    </span>
-                    <span className="text-xs font-semibold text-slate-500 flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5" /> {mock.durationMinutes} Mins
-                    </span>
+            {filteredMocks.map(mock => {
+              const totalCandidates = allAttempts.filter(a => a.mockId === mock.id).length;
+              return (
+                <div key={mock.id} className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <span className={`text-xs font-extrabold px-2.5 py-1 rounded-md ${
+                        mock.category === 'SSC' ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' :
+                        mock.category === 'Railway' ? 'bg-sky-50 text-sky-700 border border-sky-200' :
+                        'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                      }`}>
+                        {mock.category}
+                      </span>
+                      <span className="text-xs font-semibold text-slate-500 flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5" /> {mock.durationMinutes} Mins
+                      </span>
+                    </div>
+
+                    <h3 className="font-bold text-slate-900 text-base leading-snug mb-3">{mock.title}</h3>
+
+                    <div className="grid grid-cols-3 gap-2 bg-slate-50 rounded-xl p-2.5 text-center border border-slate-100 mb-3">
+                      <div>
+                        <div className="text-xs text-slate-400">Questions</div>
+                        <div className="font-bold text-sm text-slate-800">{mock.questions?.length || 0}</div>
+                      </div>
+                      <div className="border-x border-slate-200">
+                        <div className="text-xs text-slate-400">Correct</div>
+                        <div className="font-bold text-sm text-emerald-600">+{mock.positiveMark}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-slate-400">Negative</div>
+                        <div className="font-bold text-sm text-rose-600">-{mock.negativeMark}</div>
+                      </div>
+                    </div>
+
+                    <div className="text-[11px] text-slate-500 mb-4 flex items-center justify-between">
+                      <span>{totalCandidates} Attempt{totalCandidates === 1 ? '' : 's'} Recorded</span>
+                      <span className="text-indigo-600 font-semibold">Live Rank Enabled</span>
+                    </div>
                   </div>
 
-                  <h3 className="font-bold text-slate-900 text-base leading-snug mb-3">{mock.title}</h3>
-
-                  <div className="grid grid-cols-3 gap-2 bg-slate-50 rounded-xl p-2.5 text-center border border-slate-100 mb-4">
-                    <div>
-                      <div className="text-xs text-slate-400">Questions</div>
-                      <div className="font-bold text-sm text-slate-800">{mock.questions?.length || 0}</div>
-                    </div>
-                    <div className="border-x border-slate-200">
-                      <div className="text-xs text-slate-400">Correct</div>
-                      <div className="font-bold text-sm text-emerald-600">+{mock.positiveMark}</div>
-                    </div>
-                    <div>
-                      <div className="text-xs text-slate-400">Negative</div>
-                      <div className="font-bold text-sm text-rose-600">-{mock.negativeMark}</div>
-                    </div>
-                  </div>
+                  <button
+                    onClick={() => onStartMock(mock)}
+                    className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm transition flex items-center justify-center gap-2"
+                  >
+                    <span>Attempt TCS iON Mock</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
                 </div>
-
-                <button
-                  onClick={() => onStartMock(mock)}
-                  className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm transition flex items-center justify-center gap-2"
-                >
-                  <span>Attempt TCS iON Mock</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
-            {filteredMocks.length === 0 && (
-              <div className="col-span-full text-center py-12 bg-white rounded-2xl border border-slate-200 text-slate-500 text-sm">
-                No mock tests found for this filter.
-              </div>
-            )}
+              );
+            })}
           </div>
         )}
 
-        {/* TAB 2: STUDY NOTES */}
         {activeTab === 'notes' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {filteredNotes.map(note => (
@@ -1440,11 +1233,10 @@ function StudentDashboard({
           </div>
         )}
 
-        {/* TAB 3: ATTEMPT HISTORY */}
         {activeTab === 'history' && (
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
             <div className="p-5 border-b border-slate-100">
-              <h3 className="font-bold text-slate-900">Your Past Mock Attempts</h3>
+              <h3 className="font-bold text-slate-900">Your Past Mock Attempts & Live Rankings</h3>
             </div>
             {attempts.length === 0 ? (
               <div className="p-10 text-center text-sm text-slate-500">
@@ -1456,20 +1248,29 @@ function StudentDashboard({
                   <thead className="bg-slate-50 text-slate-600 text-xs uppercase">
                     <tr>
                       <th className="px-5 py-3">Mock Test</th>
-                      <th className="px-5 py-3">Stream</th>
+                      <th className="px-5 py-3">Live Rank</th>
                       <th className="px-5 py-3">Score</th>
                       <th className="px-5 py-3">Accuracy</th>
-                      <th className="px-5 py-3">Date</th>
+                      <th className="px-5 py-3">Time Taken</th>
+                      <th className="px-5 py-3">Analysis</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {attempts.map(att => (
                       <tr key={att.id} className="hover:bg-slate-50">
                         <td className="px-5 py-3.5 font-semibold text-slate-900">{att.mockTitle}</td>
-                        <td className="px-5 py-3.5">{att.category}</td>
+                        <td className="px-5 py-3.5 font-bold text-amber-600">{getRankForAttempt(att)}</td>
                         <td className="px-5 py-3.5 font-bold text-indigo-600">{att.score} / {att.maxScore}</td>
                         <td className="px-5 py-3.5">{att.accuracy}%</td>
-                        <td className="px-5 py-3.5 text-slate-500 text-xs">{new Date(att.submittedAt).toLocaleDateString()}</td>
+                        <td className="px-5 py-3.5 text-slate-600 text-xs">{formatDurationHuman(att.totalTimeSeconds)}</td>
+                        <td className="px-5 py-3.5">
+                          <button
+                            onClick={() => onViewAttemptReport(att)}
+                            className="px-3 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold"
+                          >
+                            View Report
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -1479,7 +1280,6 @@ function StudentDashboard({
           </div>
         )}
 
-        {/* TAB 4: PROFILE & CHANGE PASSWORD */}
         {activeTab === 'profile' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
@@ -1517,7 +1317,7 @@ function StudentDashboard({
 }
 
 // ============================================================================
-// COMPONENT 3: CHANGE PASSWORD WIDGET (SHARED BY STUDENT & ADMIN)
+// COMPONENT 3: CHANGE PASSWORD WIDGET
 // ============================================================================
 function ChangePasswordCard({ onChangePassword }) {
   const [oldPass, setOldPass] = useState('');
@@ -1601,7 +1401,7 @@ function ChangePasswordCard({ onChangePassword }) {
 }
 
 // ============================================================================
-// COMPONENT 4: TCS iON CBT EXAM INSTRUCTIONS & LIVE ENGINE
+// COMPONENT 4: TCS iON CBT EXAM ENGINE (WITH PER-QUESTION TIME TRACKER)
 // ============================================================================
 function ExamInstructionsScreen({ mock, student, onStart, onCancel }) {
   const [agreed, setAgreed] = useState(false);
@@ -1620,32 +1420,7 @@ function ExamInstructionsScreen({ mock, student, onStart, onCancel }) {
 
         <div className="space-y-3 text-sm text-slate-700 leading-relaxed mb-6">
           <p><strong>1. Duration & Marking:</strong> Total duration is <strong>{mock.durationMinutes} minutes</strong>. Each correct answer awards <strong>+{mock.positiveMark}</strong> marks, and each wrong answer deducts <strong>-{mock.negativeMark}</strong> marks.</p>
-          <p><strong>2. Question Palette Legend:</strong></p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-4 rounded-lg border border-slate-200 text-xs">
-            <div className="flex items-center gap-3">
-              <span className="w-7 h-7 rounded bg-slate-200 border border-slate-400 flex items-center justify-center font-bold">1</span>
-              <span>You have NOT visited the question yet.</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="w-7 h-7 rounded-t-xl bg-rose-600 text-white flex items-center justify-center font-bold">2</span>
-              <span>You have NOT answered the question.</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="w-7 h-7 rounded-b-xl bg-emerald-600 text-white flex items-center justify-center font-bold">3</span>
-              <span>You have answered the question.</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="w-7 h-7 rounded-full bg-purple-700 text-white flex items-center justify-center font-bold">4</span>
-              <span>You have NOT answered, but marked for review.</span>
-            </div>
-            <div className="flex items-center gap-3 sm:col-span-2">
-              <span className="w-7 h-7 rounded-full bg-purple-700 text-white flex items-center justify-center font-bold relative">
-                5
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 absolute -bottom-0.5 -right-0.5 border border-white"></span>
-              </span>
-              <span>Answered AND Marked for Review (will be considered for evaluation).</span>
-            </div>
-          </div>
+          <p><strong>2. Time & Rank Evaluation:</strong> Time spent on every question is tracked automatically to generate your Section Strength/Weakness diagnostic and All-India Portal Rank upon submission.</p>
           <p><strong>3. Specific Exam Note:</strong> {mock.instructions}</p>
         </div>
 
@@ -1688,7 +1463,7 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
   const sections = useMemo(() => [...new Set(questions.map(q => q.section))], [questions]);
 
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [answers, setAnswers] = useState({}); // { [qIndex]: optionIndex }
+  const [answers, setAnswers] = useState({});
   const [statuses, setStatuses] = useState(() => {
     const init = {};
     questions.forEach((_, idx) => { init[idx] = idx === 0 ? 'not_answered' : 'not_visited'; });
@@ -1697,11 +1472,21 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
   const [secondsLeft, setSecondsLeft] = useState(mock.durationMinutes * 60);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
 
+  // Per-question time tracker (in seconds)
+  const [questionTimes, setQuestionTimes] = useState({});
+  const currentIdxRef = useRef(currentIdx);
+  currentIdxRef.current = currentIdx;
+
   const currentQ = questions[currentIdx];
 
-  // Countdown Timer
   useEffect(() => {
     const timer = setInterval(() => {
+      // Increment active question's spent seconds
+      setQuestionTimes(prev => {
+        const activeQ = currentIdxRef.current;
+        return { ...prev, [activeQ]: (prev[activeQ] || 0) + 1 };
+      });
+
       setSecondsLeft(prev => {
         if (prev <= 1) {
           clearInterval(timer);
@@ -1760,7 +1545,6 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
     }
   };
 
-  // Palette Counters
   const counts = useMemo(() => {
     let answered = 0, notAnswered = 0, notVisited = 0, marked = 0, answeredMarked = 0;
     Object.values(statuses).forEach(st => {
@@ -1791,6 +1575,7 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
     const maxScore = Number((questions.length * mock.positiveMark).toFixed(2));
     const attemptedTotal = correct + wrong;
     const accuracy = attemptedTotal > 0 ? Math.round((correct / attemptedTotal) * 100) : 0;
+    const totalTimeSeconds = Math.max(1, (mock.durationMinutes * 60) - secondsLeft);
 
     onSubmitExam({
       id: `att-${Date.now()}`,
@@ -1805,6 +1590,8 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
       wrong,
       unattempted,
       accuracy,
+      totalTimeSeconds,
+      questionTimes,
       userAnswers: answers,
       submittedAt: new Date().toISOString()
     });
@@ -1814,7 +1601,6 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
 
   return (
     <div className="h-screen flex flex-col bg-white select-none overflow-hidden">
-      {/* Top Blue TCS iON Bar */}
       <div className="bg-[#2c5aa0] text-white px-4 py-2 flex items-center justify-between text-xs sm:text-sm shrink-0">
         <div className="font-bold truncate">{mock.title}</div>
         <div className="flex items-center gap-4">
@@ -1825,7 +1611,6 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
         </div>
       </div>
 
-      {/* Sub-header: Sections & Live Countdown Timer */}
       <div className="bg-slate-100 border-b border-slate-300 px-4 py-2 flex flex-wrap items-center justify-between gap-2 shrink-0">
         <div className="flex items-center gap-1.5 overflow-x-auto">
           <span className="text-xs font-bold text-slate-500 mr-1">Sections:</span>
@@ -1848,19 +1633,22 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
           })}
         </div>
 
-        <div className="flex items-center gap-2 bg-white px-3 py-1 rounded border border-slate-300">
-          <span className="text-xs font-bold text-slate-600">Time Left:</span>
-          <span className={`font-mono font-extrabold text-sm ${secondsLeft < 300 ? 'text-rose-600 animate-pulse' : 'text-slate-900'}`}>
-            {formatTime(secondsLeft)}
-          </span>
+        <div className="flex items-center gap-3">
+          <div className="hidden sm:flex items-center gap-1.5 bg-blue-50 px-2.5 py-1 rounded border border-blue-200 text-xs text-blue-900">
+            <Timer className="w-3.5 h-3.5 text-[#2c5aa0]" />
+            <span>Q{currentIdx + 1} Time: <strong>{questionTimes[currentIdx] || 0}s</strong></span>
+          </div>
+          <div className="flex items-center gap-2 bg-white px-3 py-1 rounded border border-slate-300">
+            <span className="text-xs font-bold text-slate-600">Time Left:</span>
+            <span className={`font-mono font-extrabold text-sm ${secondsLeft < 300 ? 'text-rose-600 animate-pulse' : 'text-slate-900'}`}>
+              {formatTime(secondsLeft)}
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Main Split Workspace */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-        {/* Left 75%: Question Display & Options */}
         <div className="lg:w-9/12 flex flex-col border-r border-slate-300 overflow-hidden">
-          {/* Question Header */}
           <div className="px-5 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs shrink-0">
             <span className="font-bold text-slate-800 text-sm">Question No. {currentIdx + 1}</span>
             <div className="flex items-center gap-3">
@@ -1869,7 +1657,6 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
             </div>
           </div>
 
-          {/* Question Body */}
           <div className="flex-1 overflow-y-auto p-6 space-y-5">
             <div className="text-base text-slate-900 font-medium whitespace-pre-line leading-relaxed">
               {currentQ.text}
@@ -1905,7 +1692,6 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
             </div>
           </div>
 
-          {/* Bottom TCS iON Action Bar */}
           <div className="px-4 py-3 bg-slate-100 border-t border-slate-300 flex flex-wrap items-center justify-between gap-2 shrink-0">
             <div className="flex flex-wrap gap-2">
               <button
@@ -1934,10 +1720,8 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
           </div>
         </div>
 
-        {/* Right 25%: Candidate Profile, Status Legend & Question Palette */}
         <div className="lg:w-3/12 bg-[#e8f1f8] flex flex-col justify-between overflow-y-auto">
           <div>
-            {/* Candidate Badge */}
             <div className="p-3 bg-white border-b border-slate-300 flex items-center gap-3">
               <div className="w-10 h-10 rounded bg-slate-200 border border-slate-300 flex items-center justify-center font-bold text-slate-700">
                 {student.name.charAt(0)}
@@ -1948,7 +1732,6 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
               </div>
             </div>
 
-            {/* 5-State TCS iON Counters */}
             <div className="p-3 bg-white border-b border-slate-300 grid grid-cols-2 gap-2 text-[11px]">
               <div className="flex items-center gap-2">
                 <span className="w-6 h-6 rounded-b-lg bg-emerald-600 text-white font-bold flex items-center justify-center shrink-0">
@@ -1974,21 +1757,12 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
                 </span>
                 <span>Marked for Review</span>
               </div>
-              <div className="flex items-center gap-2 col-span-2">
-                <span className="w-6 h-6 rounded-full bg-purple-700 text-white font-bold flex items-center justify-center shrink-0 relative">
-                  {counts.answeredMarked}
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 absolute -bottom-0.5 -right-0.5"></span>
-                </span>
-                <span>Answered & Marked for Review</span>
-              </div>
             </div>
 
-            {/* Section Palette Header */}
             <div className="bg-[#2c5aa0] text-white px-3 py-1.5 text-xs font-bold">
               Choose a Question
             </div>
 
-            {/* Question Palette Grid */}
             <div className="p-3 grid grid-cols-5 gap-2">
               {questions.map((_, idx) => {
                 const st = statuses[idx];
@@ -1996,8 +1770,7 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
                 let badgeStyle = 'bg-slate-200 border border-slate-400 text-slate-800 rounded';
                 if (st === 'answered') badgeStyle = 'bg-emerald-600 text-white rounded-b-xl';
                 if (st === 'not_answered') badgeStyle = 'bg-rose-600 text-white rounded-t-xl';
-                if (st === 'marked') badgeStyle = 'bg-purple-700 text-white rounded-full';
-                if (st === 'answered_marked') badgeStyle = 'bg-purple-700 text-white rounded-full';
+                if (st === 'marked' || st === 'answered_marked') badgeStyle = 'bg-purple-700 text-white rounded-full';
 
                 return (
                   <button
@@ -2008,16 +1781,12 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
                     }`}
                   >
                     {idx + 1}
-                    {st === 'answered_marked' && (
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 absolute -bottom-0.5 -right-0.5 border border-white"></span>
-                    )}
                   </button>
                 );
               })}
             </div>
           </div>
 
-          {/* Submit Exam Button */}
           <div className="p-3 bg-white border-t border-slate-300">
             <button
               type="button"
@@ -2030,7 +1799,6 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
         </div>
       </div>
 
-      {/* Submission Confirmation Modal */}
       {showSubmitModal && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
@@ -2064,17 +1832,73 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
 }
 
 // ============================================================================
-// COMPONENT 5: SCORECARD & SOLUTION REVIEW SCREEN
+// COMPONENT 5: SCORECARD, RANK, STRENGTH/WEAKNESS & PER-QUESTION TIME REVIEW
 // ============================================================================
-function ExamScorecardScreen({ mock, attempt, onBackToDashboard }) {
+function ExamScorecardScreen({ mock, attempt, allMockAttempts, onBackToDashboard }) {
+  // Compute Leaderboard & Live Rank
+  const rankedAttempts = useMemo(() => {
+    const list = allMockAttempts.some(a => a.id === attempt.id)
+      ? [...allMockAttempts]
+      : [attempt, ...allMockAttempts];
+
+    return list.sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      if (b.accuracy !== a.accuracy) return b.accuracy - a.accuracy;
+      return (a.totalTimeSeconds || 99999) - (b.totalTimeSeconds || 99999);
+    });
+  }, [allMockAttempts, attempt]);
+
+  const candidateRank = rankedAttempts.findIndex(a => a.id === attempt.id) + 1;
+  const totalCandidates = rankedAttempts.length;
+  const percentile = totalCandidates > 1
+    ? Math.round(((totalCandidates - candidateRank) / (totalCandidates - 1)) * 100)
+    : 100;
+
+  // Section-wise Strengths & Weaknesses Diagnostic
+  const sectionAnalysis = useMemo(() => {
+    const map = {};
+    mock.questions.forEach((q, idx) => {
+      const sec = q.section || 'General';
+      if (!map[sec]) {
+        map[sec] = { section: sec, total: 0, correct: 0, wrong: 0, unattempted: 0, timeSeconds: 0 };
+      }
+      map[sec].total += 1;
+      map[sec].timeSeconds += (attempt.questionTimes?.[idx] || 0);
+      const ans = attempt.userAnswers?.[idx];
+      if (ans === undefined) map[sec].unattempted += 1;
+      else if (ans === q.correctIndex) map[sec].correct += 1;
+      else map[sec].wrong += 1;
+    });
+
+    return Object.values(map).map(s => {
+      const attempted = s.correct + s.wrong;
+      const accuracy = attempted > 0 ? Math.round((s.correct / attempted) * 100) : 0;
+      const netScore = Number(((s.correct * mock.positiveMark) - (s.wrong * mock.negativeMark)).toFixed(2));
+      let tag = 'Average';
+      if (attempted > 0 && accuracy >= 70) tag = 'Strength';
+      else if (attempted === 0 || accuracy < 50) tag = 'Weakness';
+      return { ...s, attempted, accuracy, netScore, tag };
+    });
+  }, [mock, attempt]);
+
+  const strengths = sectionAnalysis.filter(s => s.tag === 'Strength');
+  const weaknesses = sectionAnalysis.filter(s => s.tag === 'Weakness');
+  const avgTimePerQ = mock.questions.length > 0
+    ? Math.round((attempt.totalTimeSeconds || 0) / mock.questions.length)
+    : 0;
+
   return (
     <div className="min-h-screen bg-slate-50 py-8 px-4">
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-5xl mx-auto space-y-6">
+        {/* TOP SCORECARD & RANK SUMMARY */}
         <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-5 mb-6">
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">PATHSHALA Official Scorecard</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">PATHSHALA Official Evaluation Report</span>
               <h2 className="text-2xl font-extrabold text-slate-900 mt-1">{mock.title}</h2>
+              <p className="text-xs text-slate-500 mt-1">
+                Candidate: <strong>{attempt.studentName}</strong> ({attempt.studentId}) • Total Time: <strong>{formatDurationHuman(attempt.totalTimeSeconds)}</strong> (Avg {avgTimePerQ}s/Q)
+              </p>
             </div>
             <button
               onClick={onBackToDashboard}
@@ -2084,9 +1908,16 @@ function ExamScorecardScreen({ mock, attempt, onBackToDashboard }) {
             </button>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3.5">
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center">
+              <div className="text-xs text-amber-800 font-bold flex items-center justify-center gap-1">
+                <Award className="w-3.5 h-3.5" /> Portal Rank
+              </div>
+              <div className="text-2xl font-black text-amber-950 mt-1">#{candidateRank} <span className="text-xs font-semibold text-amber-700">/ {totalCandidates}</span></div>
+              <div className="text-[11px] text-amber-700 font-semibold mt-0.5">{percentile}%ile</div>
+            </div>
             <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 text-center">
-              <div className="text-xs text-indigo-600 font-semibold">Total Score</div>
+              <div className="text-xs text-indigo-600 font-semibold">Net Score</div>
               <div className="text-2xl font-black text-indigo-950 mt-1">{attempt.score} / {attempt.maxScore}</div>
             </div>
             <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 text-center">
@@ -2097,31 +1928,160 @@ function ExamScorecardScreen({ mock, attempt, onBackToDashboard }) {
               <div className="text-xs text-rose-600 font-semibold">Incorrect</div>
               <div className="text-2xl font-black text-rose-900 mt-1">{attempt.wrong}</div>
             </div>
-            <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 text-center">
-              <div className="text-xs text-amber-700 font-semibold">Accuracy</div>
-              <div className="text-2xl font-black text-amber-950 mt-1">{attempt.accuracy}%</div>
+            <div className="bg-slate-100 border border-slate-200 rounded-xl p-4 text-center">
+              <div className="text-xs text-slate-600 font-semibold">Accuracy</div>
+              <div className="text-2xl font-black text-slate-900 mt-1">{attempt.accuracy}%</div>
             </div>
           </div>
         </div>
 
-        {/* Answer Key & Explanations */}
+        {/* STRENGTHS & WEAKNESSES DIAGNOSTIC */}
         <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5">
-          <h3 className="font-bold text-lg text-slate-900">Detailed Solutions & Answer Key</h3>
+          <div>
+            <h3 className="font-bold text-lg text-slate-900">Section-Wise Strengths & Weaknesses Analysis</h3>
+            <p className="text-xs text-slate-500">Diagnostic evaluation based on your section accuracy and time management.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200">
+              <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm mb-2">
+                <TrendingUp className="w-4 h-4" /> Your Strong Areas (≥70% Accuracy)
+              </div>
+              {strengths.length === 0 ? (
+                <p className="text-xs text-emerald-700">No section crossed 70% accuracy yet. Review explanations below to build mastery.</p>
+              ) : (
+                <ul className="space-y-1 text-xs text-emerald-900 font-medium">
+                  {strengths.map(s => (
+                    <li key={s.section}>• <strong>{s.section}</strong> — {s.accuracy}% accuracy ({s.correct}/{s.total} correct in {formatDurationHuman(s.timeSeconds)})</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div className="p-4 rounded-xl bg-rose-50/70 border border-rose-200">
+              <div className="flex items-center gap-2 text-rose-800 font-bold text-sm mb-2">
+                <TrendingDown className="w-4 h-4" /> Focus / Weak Areas (&lt;50% Accuracy)
+              </div>
+              {weaknesses.length === 0 ? (
+                <p className="text-xs text-rose-700">Great balance! None of your sections fell below 50% accuracy.</p>
+              ) : (
+                <ul className="space-y-1 text-xs text-rose-900 font-medium">
+                  {weaknesses.map(s => (
+                    <li key={s.section}>• <strong>{s.section}</strong> — {s.accuracy}% accuracy ({s.wrong} wrong, {s.unattempted} skipped • {formatDurationHuman(s.timeSeconds)})</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+
+          <div className="overflow-x-auto border border-slate-200 rounded-xl">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-50 text-slate-600 uppercase">
+                <tr>
+                  <th className="px-4 py-3">Section</th>
+                  <th className="px-4 py-3">Attempted</th>
+                  <th className="px-4 py-3">Correct / Wrong</th>
+                  <th className="px-4 py-3">Net Score</th>
+                  <th className="px-4 py-3">Accuracy</th>
+                  <th className="px-4 py-3">Time Spent</th>
+                  <th className="px-4 py-3">Verdict</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {sectionAnalysis.map(s => (
+                  <tr key={s.section}>
+                    <td className="px-4 py-3 font-bold text-slate-900">{s.section}</td>
+                    <td className="px-4 py-3">{s.attempted} / {s.total}</td>
+                    <td className="px-4 py-3">
+                      <span className="text-emerald-600 font-bold">{s.correct}C</span> / <span className="text-rose-600 font-bold">{s.wrong}W</span>
+                    </td>
+                    <td className="px-4 py-3 font-bold text-indigo-600">{s.netScore}</td>
+                    <td className="px-4 py-3 font-semibold">{s.accuracy}%</td>
+                    <td className="px-4 py-3 text-slate-600">{formatDurationHuman(s.timeSeconds)}</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-2 py-0.5 rounded-full font-bold text-[11px] ${
+                        s.tag === 'Strength' ? 'bg-emerald-100 text-emerald-800' :
+                        s.tag === 'Weakness' ? 'bg-rose-100 text-rose-800' :
+                        'bg-amber-100 text-amber-800'
+                      }`}>
+                        {s.tag}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* LIVE CANDIDATE LEADERBOARD */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-lg text-slate-900">Mock Leaderboard (Top Candidates)</h3>
+              <p className="text-xs text-slate-500">Ranked by Net Score, Accuracy, and Completion Time.</p>
+            </div>
+            <span className="text-xs font-bold px-3 py-1 rounded-full bg-indigo-50 text-indigo-700">
+              Your Rank: #{candidateRank} of {totalCandidates}
+            </span>
+          </div>
+
+          <div className="overflow-x-auto border border-slate-200 rounded-xl">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-50 text-slate-600 uppercase">
+                <tr>
+                  <th className="px-4 py-3">Rank</th>
+                  <th className="px-4 py-3">Candidate</th>
+                  <th className="px-4 py-3">Net Score</th>
+                  <th className="px-4 py-3">Accuracy</th>
+                  <th className="px-4 py-3">Time Taken</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {rankedAttempts.slice(0, 10).map((row, idx) => {
+                  const isMe = row.id === attempt.id;
+                  return (
+                    <tr key={row.id} className={isMe ? 'bg-indigo-50/80 font-semibold' : ''}>
+                      <td className="px-4 py-3 font-black text-slate-900">#{idx + 1}</td>
+                      <td className="px-4 py-3">
+                        {row.studentName} <span className="font-mono text-slate-400">({row.studentId})</span>
+                        {isMe && <span className="ml-2 px-2 py-0.5 rounded bg-indigo-600 text-white text-[10px]">YOU</span>}
+                      </td>
+                      <td className="px-4 py-3 font-bold text-indigo-700">{row.score} / {row.maxScore}</td>
+                      <td className="px-4 py-3">{row.accuracy}%</td>
+                      <td className="px-4 py-3 text-slate-600">{formatDurationHuman(row.totalTimeSeconds)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* QUESTION-BY-QUESTION REVIEW WITH TIME SPENT */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5">
+          <h3 className="font-bold text-lg text-slate-900">Question-by-Question Time & Solution Review</h3>
           {mock.questions.map((q, idx) => {
             const userChoice = attempt.userAnswers?.[idx];
             const isCorrect = userChoice === q.correctIndex;
             const isSkipped = userChoice === undefined;
+            const timeTaken = attempt.questionTimes?.[idx] || 0;
 
             return (
               <div key={q.id} className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2.5">
-                <div className="flex items-center justify-between text-xs">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
                   <span className="font-bold text-slate-700">Q{idx + 1} • {q.section}</span>
-                  <span className={`px-2.5 py-0.5 rounded-full font-bold ${
-                    isSkipped ? 'bg-slate-200 text-slate-700' :
-                    isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
-                  }`}>
-                    {isSkipped ? 'Unattempted' : isCorrect ? `Correct (+${mock.positiveMark})` : `Wrong (-${mock.negativeMark})`}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-blue-800 font-semibold flex items-center gap-1">
+                      <Timer className="w-3 h-3" /> Time Taken: {timeTaken}s
+                    </span>
+                    <span className={`px-2.5 py-0.5 rounded-full font-bold ${
+                      isSkipped ? 'bg-slate-200 text-slate-700' :
+                      isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                    }`}>
+                      {isSkipped ? 'Unattempted' : isCorrect ? `Correct (+${mock.positiveMark})` : `Wrong (-${mock.negativeMark})`}
+                    </span>
+                  </div>
                 </div>
                 <p className="text-sm font-semibold text-slate-900 whitespace-pre-line">{q.text}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
@@ -2155,7 +2115,7 @@ function ExamScorecardScreen({ mock, attempt, onBackToDashboard }) {
 }
 
 // ============================================================================
-// COMPONENT 6: STUDY NOTE READER & PRINTABLE CAPSULE
+// COMPONENT 6: STUDY NOTE READER
 // ============================================================================
 function StudyNoteReader({ note, onClose }) {
   return (
@@ -2198,17 +2158,26 @@ function StudyNoteReader({ note, onClose }) {
 }
 
 // ============================================================================
-// COMPONENT 7: ADMIN CONTROL PANEL (MANAGE MOCKS, NOTES, STUDENTS, PASSWORD)
+// COMPONENT 7: ADMIN CONTROL PANEL (WITH CANDIDATE PERFORMANCE ANALYTICS)
 // ============================================================================
 function AdminDashboard({
   admin, users, mocks, notes, attempts,
   onSaveMock, onDeleteMock, onSaveNote, onDeleteNote, onPreviewNote, onChangePassword, onLogout
 }) {
-  const [tab, setTab] = useState('mocks'); // 'mocks' | 'notes' | 'students' | 'password'
+  const [tab, setTab] = useState('mocks');
   const [editingMock, setEditingMock] = useState(null);
   const [editingNote, setEditingNote] = useState(null);
+  const [selectedMockFilter, setSelectedMockFilter] = useState('ALL');
 
   const students = users.filter(u => u.role === 'student');
+
+  // Filter and rank attempts for Admin Analytics tab
+  const filteredAttempts = useMemo(() => {
+    const list = selectedMockFilter === 'ALL'
+      ? [...attempts]
+      : attempts.filter(a => a.mockId === selectedMockFilter);
+    return list.sort((a, b) => (b.score - a.score) || (b.accuracy - a.accuracy) || ((a.totalTimeSeconds || 99999) - (b.totalTimeSeconds || 99999)));
+  }, [attempts, selectedMockFilter]);
 
   const createNewMockTemplate = () => {
     setEditingMock({
@@ -2277,7 +2246,6 @@ function AdminDashboard({
       </header>
 
       <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 flex-1">
-        {/* KPI Summary Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <div className="bg-white p-4 rounded-2xl border border-slate-200">
             <div className="text-xs text-slate-500 font-semibold">Total CBT Mocks</div>
@@ -2292,15 +2260,15 @@ function AdminDashboard({
             <div className="text-2xl font-black text-indigo-600 mt-1">{students.length}</div>
           </div>
           <div className="bg-white p-4 rounded-2xl border border-slate-200">
-            <div className="text-xs text-slate-500 font-semibold">Mocks Attempted</div>
+            <div className="text-xs text-slate-500 font-semibold">Total Exam Submissions</div>
             <div className="text-2xl font-black text-emerald-600 mt-1">{attempts.length}</div>
           </div>
         </div>
 
-        {/* Admin Tabs */}
         <div className="flex flex-wrap gap-2 bg-white p-1.5 rounded-xl border border-slate-200 shadow-sm w-fit mb-6">
           {[
             { id: 'mocks', label: 'Manage Mock Tests', icon: Clock },
+            { id: 'results', label: `Candidate Results (${attempts.length})`, icon: BarChart3 },
             { id: 'notes', label: 'Manage Study Notes', icon: BookOpen },
             { id: 'students', label: 'Registered Candidates', icon: Users },
             { id: 'password', label: 'Admin Password', icon: KeyRound }
@@ -2321,7 +2289,6 @@ function AdminDashboard({
           })}
         </div>
 
-        {/* ADMIN TAB 1: MOCK TESTS */}
         {tab === 'mocks' && !editingMock && (
           <div className="space-y-4">
             <div className="flex justify-between items-center">
@@ -2361,7 +2328,6 @@ function AdminDashboard({
           </div>
         )}
 
-        {/* MOCK BUILDER EDITOR */}
         {tab === 'mocks' && editingMock && (
           <MockEditorForm
             mock={editingMock}
@@ -2373,7 +2339,73 @@ function AdminDashboard({
           />
         )}
 
-        {/* ADMIN TAB 2: STUDY NOTES */}
+        {tab === 'results' && (
+          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+            <div className="p-5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 className="font-bold text-slate-900">Candidate Mock Performance & Leaderboard</h3>
+                <p className="text-xs text-slate-500">View attempted count, correct/wrong answers, net score, accuracy, and time taken for every student.</p>
+              </div>
+              <select
+                value={selectedMockFilter}
+                onChange={(e) => setSelectedMockFilter(e.target.value)}
+                className="px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-bold bg-white outline-none"
+              >
+                <option value="ALL">All Mock Tests ({attempts.length})</option>
+                {mocks.map(m => (
+                  <option key={m.id} value={m.id}>{m.title}</option>
+                ))}
+              </select>
+            </div>
+
+            {filteredAttempts.length === 0 ? (
+              <div className="p-10 text-center text-sm text-slate-500">
+                No candidate submissions recorded for this filter yet.
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50 text-slate-600 uppercase">
+                    <tr>
+                      <th className="px-4 py-3">Rank</th>
+                      <th className="px-4 py-3">Candidate</th>
+                      <th className="px-4 py-3">Mock Test</th>
+                      <th className="px-4 py-3">Attempted</th>
+                      <th className="px-4 py-3">Correct</th>
+                      <th className="px-4 py-3">Wrong</th>
+                      <th className="px-4 py-3">Net Score</th>
+                      <th className="px-4 py-3">Accuracy</th>
+                      <th className="px-4 py-3">Time Taken</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {filteredAttempts.map((att, idx) => {
+                      const attemptedCount = (att.correct || 0) + (att.wrong || 0);
+                      const totalQs = attemptedCount + (att.unattempted || 0);
+                      return (
+                        <tr key={att.id} className="hover:bg-slate-50">
+                          <td className="px-4 py-3.5 font-black text-amber-600">#{idx + 1}</td>
+                          <td className="px-4 py-3.5">
+                            <div className="font-bold text-slate-900">{att.studentName}</div>
+                            <div className="font-mono text-[11px] text-slate-500">{att.studentId}</div>
+                          </td>
+                          <td className="px-4 py-3.5 font-medium text-slate-700">{att.mockTitle}</td>
+                          <td className="px-4 py-3.5 font-semibold">{attemptedCount} / {totalQs}</td>
+                          <td className="px-4 py-3.5 font-bold text-emerald-600">{att.correct}</td>
+                          <td className="px-4 py-3.5 font-bold text-rose-600">{att.wrong}</td>
+                          <td className="px-4 py-3.5 font-black text-indigo-600">{att.score} / {att.maxScore}</td>
+                          <td className="px-4 py-3.5 font-semibold">{att.accuracy}%</td>
+                          <td className="px-4 py-3.5 text-slate-600">{formatDurationHuman(att.totalTimeSeconds)}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
         {tab === 'notes' && !editingNote && (
           <div className="space-y-4">
             <div className="flex justify-between items-center">
@@ -2419,7 +2451,6 @@ function AdminDashboard({
           </div>
         )}
 
-        {/* STUDY NOTE EDITOR */}
         {tab === 'notes' && editingNote && (
           <NoteEditorForm
             note={editingNote}
@@ -2431,7 +2462,6 @@ function AdminDashboard({
           />
         )}
 
-        {/* ADMIN TAB 3: REGISTERED CANDIDATES */}
         {tab === 'students' && (
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
             <div className="p-5 border-b border-slate-100">
@@ -2464,7 +2494,6 @@ function AdminDashboard({
           </div>
         )}
 
-        {/* ADMIN TAB 4: CHANGE ADMIN PASSWORD */}
         {tab === 'password' && (
           <div className="max-w-md">
             <ChangePasswordCard onChangePassword={onChangePassword} />
@@ -2476,10 +2505,13 @@ function AdminDashboard({
 }
 
 // ============================================================================
-// COMPONENT 8: ADMIN MOCK & NOTE EDITOR FORMS
+// COMPONENT 8: ADMIN MOCK (WITH BULK JSON IMPORTER) & NOTE EDITOR FORMS
 // ============================================================================
 function MockEditorForm({ mock, onSave, onCancel }) {
   const [form, setForm] = useState(mock);
+  const [showBulkBox, setShowBulkBox] = useState(false);
+  const [bulkJsonText, setBulkJsonText] = useState('');
+  const [bulkError, setBulkError] = useState('');
 
   const updateQuestion = (idx, field, value) => {
     const updatedQs = [...form.questions];
@@ -2520,6 +2552,41 @@ function MockEditorForm({ mock, onSave, onCancel }) {
     });
   };
 
+  const handleBulkImport = (replaceExisting = false) => {
+    setBulkError('');
+    try {
+      const parsed = JSON.parse(bulkJsonText.trim());
+      if (!Array.isArray(parsed) || parsed.length === 0) {
+        setBulkError('Please paste a valid JSON array starting with [ and ending with ].');
+        return;
+      }
+      const normalized = parsed.map((q, i) => ({
+        id: q.id || `q-${Date.now()}-${i}`,
+        section: q.section || 'General Awareness',
+        text: q.text || '',
+        options: Array.isArray(q.options) && q.options.length === 4 ? q.options : ['', '', '', ''],
+        correctIndex: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+        explanation: q.explanation || ''
+      }));
+
+      const hasOnlyBlankStarter =
+        form.questions.length === 1 &&
+        !form.questions[0].text.trim() &&
+        form.questions[0].options.every(o => !o.trim());
+
+      setForm({
+        ...form,
+        questions: (replaceExisting || hasOnlyBlankStarter)
+          ? normalized
+          : [...form.questions, ...normalized]
+      });
+      setBulkJsonText('');
+      setShowBulkBox(false);
+    } catch (err) {
+      setBulkError('Invalid JSON format. Make sure you copied the full [ ... ] block.');
+    }
+  };
+
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
       <div className="flex items-center justify-between border-b border-slate-100 pb-4">
@@ -2534,7 +2601,7 @@ function MockEditorForm({ mock, onSave, onCancel }) {
             type="text"
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
-            placeholder="e.g. SSC CHSL Tier-I Mock #02"
+            placeholder="e.g. SSC CGL Tier-1 2026 (30 Sep Shift-3)"
             className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"
           />
         </div>
@@ -2561,6 +2628,55 @@ function MockEditorForm({ mock, onSave, onCancel }) {
         </div>
       </div>
 
+      <div className="rounded-xl border border-indigo-200 bg-indigo-50/50 p-4 space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h4 className="font-bold text-sm text-indigo-950">Bulk Import Questions (JSON)</h4>
+            <p className="text-xs text-indigo-700">Paste 25–100 questions in PATHSHALA JSON format to load them instantly.</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => { setShowBulkBox(!showBulkBox); setBulkError(''); }}
+            className="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold"
+          >
+            {showBulkBox ? 'Hide JSON Box' : 'Paste JSON Questions'}
+          </button>
+        </div>
+
+        {showBulkBox && (
+          <div className="space-y-3 pt-2">
+            {bulkError && (
+              <div className="p-2.5 rounded-lg bg-rose-100 border border-rose-300 text-rose-800 text-xs font-medium">
+                {bulkError}
+              </div>
+            )}
+            <textarea
+              rows={7}
+              value={bulkJsonText}
+              onChange={(e) => setBulkJsonText(e.target.value)}
+              placeholder='Paste JSON array here: [ { "section": "...", "text": "...", "options": ["A","B","C","D"], "correctIndex": 0, "explanation": "..." } ]'
+              className="w-full p-3 rounded-xl border border-indigo-300 text-xs font-mono bg-white outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+            <div className="flex flex-wrap justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => handleBulkImport(false)}
+                className="px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold"
+              >
+                Append to Existing Questions
+              </button>
+              <button
+                type="button"
+                onClick={() => handleBulkImport(true)}
+                className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold"
+              >
+                Replace All & Load Questions
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h4 className="font-bold text-sm text-slate-800">Questions ({form.questions.length})</h4>
@@ -2569,7 +2685,7 @@ function MockEditorForm({ mock, onSave, onCancel }) {
             onClick={addQuestion}
             className="px-3 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-bold flex items-center gap-1"
           >
-            <Plus className="w-3.5 h-3.5" /> Add Question
+            <Plus className="w-3.5 h-3.5" /> Add Single Question
           </button>
         </div>
 
