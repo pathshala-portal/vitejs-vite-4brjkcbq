@@ -158,6 +158,25 @@ function formatDurationHuman(seconds) {
   return `${mins}m ${secs}s`;
 }
 
+function renderFormattedText(rawText) {
+  if (!rawText) return null;
+  const parts = String(rawText).split(/(<b>.*?<\/b>|\*\*.*?\*\*|<u>.*?<\/u>|<mark>.*?<\/mark>)/gi);
+  return parts.map((part, idx) => {
+    if (/^<b>.*<\/b>$/i.test(part)) {
+      return <strong key={idx} className="font-extrabold text-slate-950">{part.replace(/<\/?b>/gi, '')}</strong>;
+    }
+    if (/^\*\*.*\*\*$/.test(part)) {
+      return <strong key={idx} className="font-extrabold text-slate-950">{part.slice(2, -2)}</strong>;
+    }
+    if (/^<u>.*<\/u>$/i.test(part)) {
+      return <u key={idx} className="decoration-2 decoration-indigo-600 underline-offset-4 font-semibold">{part.replace(/<\/?u>/gi, '')}</u>;
+    }
+    if (/^<mark>.*<\/mark>$/i.test(part)) {
+      return <mark key={idx} className="bg-amber-200/80 text-slate-900 px-1 rounded font-semibold">{part.replace(/<\/?mark>/gi, '')}</mark>;
+    }
+    return <React.Fragment key={idx}>{part}</React.Fragment>;
+  });
+}
 // ============================================================================
 // MAIN APPLICATION COMPONENT
 // ============================================================================
@@ -1916,7 +1935,7 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
 
           <div className="flex-1 overflow-y-auto p-6 space-y-5">
             <div className="text-base text-slate-900 font-medium whitespace-pre-line leading-relaxed">
-              {currentQ.text}
+             {renderFormattedText(currentQ.text)}
             </div>
 
             <div className="space-y-3 max-w-2xl">
@@ -2360,7 +2379,7 @@ function ExamScorecardScreen({ mock, attempt, allMockAttempts, onBackToDashboard
                     </span>
                   </div>
                 </div>
-                <p className="text-sm font-semibold text-slate-900 whitespace-pre-line">{q.text}</p>
+                <p className="text-sm font-semibold text-slate-900 whitespace-pre-line">{renderFormattedText(q.text)}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                   {q.options.map((opt, oIdx) => (
                     <div
