@@ -57,6 +57,12 @@ function getMockSubCategory(mock) {
   return 'General';
 }
 
+function getDefaultMarking(category, subCategory) {
+  if (category === 'WBPSC' && (subCategory === 'Clerkship' || subCategory === 'Stenographer')) {
+    return { positiveMark: 1.0, negativeMark: 0.25 };
+  }
+  return { positiveMark: 2.0, negativeMark: 0.5 };
+}
 // ============================================================================
 // DEFAULT SEED DATA (PRE-POPULATED FOR INSTANT DEMO & TESTING)
 // ============================================================================
@@ -2853,12 +2859,26 @@ function MockEditorForm({ mock, onSave, onCancel }) {
   const [bulkJsonText, setBulkJsonText] = useState('');
   const [bulkError, setBulkError] = useState('');
 
-  const handleCategoryChange = (newCategory) => {
+ const handleCategoryChange = (newCategory) => {
     const validSubs = EXAM_FOLDERS[newCategory] || ['General'];
+    const defaultSub = validSubs[0];
+    const marks = getDefaultMarking(newCategory, defaultSub);
     setForm({
       ...form,
       category: newCategory,
-      subCategory: validSubs[0]
+      subCategory: defaultSub,
+      positiveMark: marks.positiveMark,
+      negativeMark: marks.negativeMark
+    });
+  };
+
+  const handleSubCategoryChange = (newSubCategory) => {
+    const marks = getDefaultMarking(form.category, newSubCategory);
+    setForm({
+      ...form,
+      subCategory: newSubCategory,
+      positiveMark: marks.positiveMark,
+      negativeMark: marks.negativeMark
     });
   };
 
@@ -2973,7 +2993,7 @@ function MockEditorForm({ mock, onSave, onCancel }) {
           <label className="block text-xs font-bold text-slate-700 mb-1">Exam Folder</label>
           <select
             value={form.subCategory}
-            onChange={(e) => setForm({ ...form, subCategory: e.target.value })}
+          onChange={(e) => handleSubCategoryChange(e.target.value)}
             className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm bg-white"
           >
             {subFolderOptions.map(sub => (
@@ -2987,6 +3007,26 @@ function MockEditorForm({ mock, onSave, onCancel }) {
             type="number"
             value={form.durationMinutes}
             onChange={(e) => setForm({ ...form, durationMinutes: Number(e.target.value) })}
+            className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-slate-700 mb-1">Correct Mark (+)</label>
+          <input
+            type="number"
+            step="0.25"
+            value={form.positiveMark}
+            onChange={(e) => setForm({ ...form, positiveMark: Number(e.target.value) })}
+            className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-slate-700 mb-1">Negative Mark (-)</label>
+          <input
+            type="number"
+            step="0.25"
+            value={form.negativeMark}
+            onChange={(e) => setForm({ ...form, negativeMark: Number(e.target.value) })}
             className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"
           />
         </div>
