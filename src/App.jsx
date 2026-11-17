@@ -19,7 +19,7 @@ import {
   BookOpen, CheckCircle2, Clock, Award, Shield, User, Lock, KeyRound,
   LogOut, Plus, Trash2, Edit3, ChevronLeft,
   AlertCircle, Search, Eye, EyeOff,
-  GraduationCap, ArrowRight,
+  GraduationCap, ArrowRight, RotateCcw,
   BarChart3, Users, Printer, TrendingUp, TrendingDown, Timer, Folder, FolderOpen
 } from 'lucide-react';
 
@@ -895,68 +895,52 @@ function AuthPortal({
                       <option value="WBPSC">WBPSC (Clerkship / Steno / Misc)</option>
                     </select>
                   </div>
-                  <div className="p-3 bg-white border-b border-slate-300 grid grid-cols-2 gap-2 text-[11px]">
-              <div className="flex items-center gap-2">
-                <span className="w-6 h-6 rounded-b-lg bg-emerald-600 text-white font-bold flex items-center justify-center shrink-0">
-                  {counts.answered}
-                </span>
-                <span>Answered</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-6 h-6 rounded-t-lg bg-rose-600 text-white font-bold flex items-center justify-center shrink-0">
-                  {counts.notAnswered}
-                </span>
-                <span>Not Answered</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-6 h-6 rounded bg-slate-200 border border-slate-400 text-slate-800 font-bold flex items-center justify-center shrink-0">
-                  {counts.notVisited}
-                </span>
-                <span>Not Visited</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-6 h-6 rounded-full bg-purple-700 text-white font-bold flex items-center justify-center shrink-0">
-                  {counts.marked}
-                </span>
-                <span>Marked for Review</span>
-              </div>
-              <div className="col-span-2 flex items-center gap-2 pt-1 border-t border-slate-100">
-                <span className="w-6 h-6 rounded-full bg-purple-700 text-white font-bold flex items-center justify-center relative shrink-0">
-                  {counts.answeredMarked}
-                  <span className="w-3 h-3 rounded-full bg-emerald-500 text-white text-[9px] flex items-center justify-center absolute -bottom-0.5 -right-0.5 border border-white">
-                    ✓
-                  </span>
-                </span>
-               <div className="p-3 grid grid-cols-5 gap-2">
-              {questions.map((_, idx) => {
-                const st = statuses[idx];
-                const isCurrent = idx === currentIdx;
-                let badgeStyle = 'bg-slate-200 border border-slate-400 text-slate-800 rounded';
-                if (st === 'answered') badgeStyle = 'bg-emerald-600 text-white rounded-b-xl';
-                if (st === 'not_answered') badgeStyle = 'bg-rose-600 text-white rounded-t-xl';
-                if (st === 'marked' || st === 'answered_marked') badgeStyle = 'bg-purple-700 text-white rounded-full';
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Password (Optional)</label>
+                    <input
+                      type="text"
+                      value={regCustomPass}
+                      onChange={(e) => setRegCustomPass(e.target.value)}
+                      placeholder="Auto-generated if blank"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                    />
+                  </div>
+                </div>
 
-                return (
-                  <button
-                    key={idx}
-                    onClick={() => navigateToQuestion(idx)}
-                    className={`h-9 font-bold text-xs flex items-center justify-center relative transition ${badgeStyle} ${
-                      isCurrent ? 'ring-2 ring-offset-1 ring-amber-500' : ''
-                    }`}
-                  >
-                    {idx + 1}
-                    {st === 'answered_marked' && (
-                      <span
-                        title="Answered & Marked for Review"
-                        className="w-3.5 h-3.5 rounded-full bg-emerald-500 text-white text-[9px] font-black flex items-center justify-center absolute -bottom-0.5 -right-0.5 border border-white shadow-sm"
-                      >
-                        ✓
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
+                <button
+                  type="submit"
+                  className="w-full py-3 mt-2 rounded-xl font-bold text-sm text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-600/20 transition"
+                >
+                  Generate Unique ID & Register
+                </button>
+              </form>
+            </>
+          )}
+
+          {authView === 'registered_success' && newlyCreatedAccount && (
+            <div className="text-center">
+              <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-4">
+                <CheckCircle2 className="w-8 h-8" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900">Registration Complete!</h3>
+              <p className="text-xs text-slate-500 mt-1 mb-5">
+                Please save your generated Candidate Login ID and Password below.
+              </p>
+
+              <div className="bg-slate-900 text-white rounded-2xl p-5 text-left space-y-3 mb-5 border border-slate-800">
+                <div>
+                  <div className="text-[11px] uppercase tracking-wider text-slate-400">Candidate Name</div>
+                  <div className="font-semibold text-sm">{newlyCreatedAccount.name}</div>
+                </div>
+                <div className="pt-2 border-t border-slate-800">
+                  <div className="text-[11px] uppercase tracking-wider text-amber-400">Unique Login ID</div>
+                  <div className="font-mono text-lg font-bold tracking-wide text-white">{newlyCreatedAccount.id}</div>
+                </div>
+                <div className="pt-2 border-t border-slate-800">
+                  <div className="text-[11px] uppercase tracking-wider text-emerald-400">Password</div>
+                  <div className="font-mono text-lg font-bold tracking-wide text-white">{newlyCreatedAccount.password}</div>
+                </div>
+              </div>
 
               <button
                 type="button"
@@ -1062,7 +1046,7 @@ function AuthPortal({
 }
 
 // ============================================================================
-// COMPONENT 2: STUDENT DASHBOARD (WITH EXAM FOLDERS & SUB-FOLDERS)
+// COMPONENT 2: STUDENT DASHBOARD (WITH EXAM FOLDERS & REATTEMPT STATUS)
 // ============================================================================
 function StudentDashboard({
   student, mocks, notes, attempts, allAttempts, onStartMock, onViewAttemptReport, onOpenNote, onChangePassword, onLogout
@@ -1316,8 +1300,24 @@ function StudentDashboard({
               {filteredMocks.map(mock => {
                 const totalCandidates = allAttempts.filter(a => a.mockId === mock.id).length;
                 const subCat = getMockSubCategory(mock);
+
+                // Check whether the logged-in student has already attempted this mock
+                const studentMockAttempts = attempts
+                  .filter(a => a.mockId === mock.id)
+                  .sort((a, b) => new Date(b.submittedAt || 0) - new Date(a.submittedAt || 0));
+                const hasAttempted = studentMockAttempts.length > 0;
+                const latestAttempt = studentMockAttempts[0];
+                const bestScore = hasAttempted
+                  ? Math.max(...studentMockAttempts.map(a => Number(a.score) || 0))
+                  : null;
+
                 return (
-                  <div key={mock.id} className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                  <div
+                    key={mock.id}
+                    className={`bg-white rounded-2xl border p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between ${
+                      hasAttempted ? 'border-emerald-200' : 'border-slate-200'
+                    }`}
+                  >
                     <div>
                       <div className="flex items-center justify-between gap-2 mb-3">
                         <div className="flex items-center gap-1.5 flex-wrap">
@@ -1331,6 +1331,12 @@ function StudentDashboard({
                           <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-amber-50 text-amber-800 border border-amber-200">
                             {subCat}
                           </span>
+                          {hasAttempted && (
+                            <span className="text-[11px] font-extrabold px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                              <CheckCircle2 className="w-3 h-3" />
+                              Attempted ({studentMockAttempts.length}×)
+                            </span>
+                          )}
                         </div>
                         <span className="text-xs font-semibold text-slate-500 flex items-center gap-1 shrink-0">
                           <Clock className="w-3.5 h-3.5" /> {mock.durationMinutes} Mins
@@ -1355,18 +1361,51 @@ function StudentDashboard({
                       </div>
 
                       <div className="text-[11px] text-slate-500 mb-4 flex items-center justify-between">
-                        <span>{totalCandidates} Attempt{totalCandidates === 1 ? '' : 's'} Recorded</span>
+                        {hasAttempted ? (
+                          <span className="text-emerald-700 font-bold">
+                            Best Score: {bestScore} / {latestAttempt.maxScore}
+                          </span>
+                        ) : (
+                          <span>{totalCandidates} Attempt{totalCandidates === 1 ? '' : 's'} Recorded</span>
+                        )}
                         <span className="text-indigo-600 font-semibold">Live Rank Enabled</span>
                       </div>
                     </div>
 
-                    <button
-                      onClick={() => onStartMock(mock)}
-                      className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm transition flex items-center justify-center gap-2"
-                    >
-                      <span>Attempt TCS iON Mock</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      {hasAttempted && (
+                        <button
+                          type="button"
+                          onClick={() => onViewAttemptReport(latestAttempt)}
+                          className="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition flex items-center justify-center gap-1.5 shrink-0"
+                          title="View Last Evaluation Report"
+                        >
+                          <BarChart3 className="w-3.5 h-3.5 text-indigo-600" />
+                          <span>Report</span>
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => onStartMock(mock)}
+                        className={`w-full py-2.5 rounded-xl text-white font-bold text-sm transition flex items-center justify-center gap-2 ${
+                          hasAttempted
+                            ? 'bg-amber-600 hover:bg-amber-700'
+                            : 'bg-indigo-600 hover:bg-indigo-700'
+                        }`}
+                      >
+                        {hasAttempted ? (
+                          <>
+                            <RotateCcw className="w-4 h-4" />
+                            <span>Reattempt Mock</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>Attempt TCS iON Mock</span>
+                            <ArrowRight className="w-4 h-4" />
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 );
               })}
@@ -1572,7 +1611,7 @@ function ChangePasswordCard({ onChangePassword }) {
 }
 
 // ============================================================================
-// COMPONENT 4: TCS iON CBT EXAM ENGINE (STALE-CLOSURE-PROOF AUTO-SUBMIT + TIME TRACKER)
+// COMPONENT 4: TCS iON CBT EXAM ENGINE (GREEN TICK ON ANSWERED & MARKED + AUTO-SUBMIT FIX)
 // ============================================================================
 function ExamInstructionsScreen({ mock, student, onStart, onCancel }) {
   const [agreed, setAgreed] = useState(false);
@@ -1592,7 +1631,7 @@ function ExamInstructionsScreen({ mock, student, onStart, onCancel }) {
         <div className="space-y-3 text-sm text-slate-700 leading-relaxed mb-6">
           <p><strong>1. Exam Folder:</strong> {mock.category} → <strong>{getMockSubCategory(mock)}</strong></p>
           <p><strong>2. Duration & Marking:</strong> Total duration is <strong>{mock.durationMinutes} minutes</strong>. Each correct answer awards <strong>+{mock.positiveMark}</strong> marks, and each wrong answer deducts <strong>-{mock.negativeMark}</strong> marks. If time expires, your exam will be auto-submitted and evaluated automatically.</p>
-          <p><strong>3. Time & Rank Evaluation:</strong> Time spent on every question is tracked automatically to generate your Section Strength/Weakness diagnostic and All-India Portal Rank upon submission.</p>
+          <p><strong>3. Question Palette Legend:</strong> Questions marked as <strong>Answered &amp; Marked for Review</strong> (purple circle with green <strong>✓</strong> tick) are considered for evaluation.</p>
           <p><strong>4. Specific Exam Note:</strong> {mock.instructions}</p>
         </div>
 
@@ -1686,7 +1725,6 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
     const attemptedTotal = correct + wrong;
     const accuracy = attemptedTotal > 0 ? Math.round((correct / attemptedTotal) * 100) : 0;
 
-    // On auto-submit, full exam duration was used; on manual submit, exact elapsed seconds
     const elapsedByClock = totalExamSeconds - remainingSec;
     const sumQuestionSeconds = Object.values(latestQuestionTimes).reduce((acc, v) => acc + v, 0);
     const totalTimeSeconds = isAutoSubmit
@@ -1722,7 +1760,6 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
         return;
       }
 
-      // Increment active question's spent seconds in both ref & state
       const activeQ = currentIdxRef.current;
       const updatedTimes = {
         ...questionTimesRef.current,
@@ -1735,7 +1772,6 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
         if (prev <= 1) {
           clearInterval(timer);
           secondsLeftRef.current = 0;
-          // Trigger auto-submit outside state updater safely
           setTimeout(() => finalizeSubmission(true), 0);
           return 0;
         }
@@ -1766,6 +1802,13 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
       answersRef.current = next;
       return next;
     });
+    // If question was already marked for review without answer, upgrade badge to answered_marked (green tick)
+    setStatuses(prev => {
+      if (prev[currentIdx] === 'marked') {
+        return { ...prev, [currentIdx]: 'answered_marked' };
+      }
+      return prev;
+    });
   };
 
   const handleClearResponse = () => {
@@ -1775,7 +1818,10 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
       answersRef.current = next;
       return next;
     });
-    setStatuses(prev => ({ ...prev, [currentIdx]: 'not_answered' }));
+    setStatuses(prev => ({
+      ...prev,
+      [currentIdx]: prev[currentIdx] === 'answered_marked' ? 'marked' : 'not_answered'
+    }));
   };
 
   const handleSaveAndNext = () => {
@@ -1908,1202 +1954,4 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
           </div>
 
           <div className="px-4 py-3 bg-slate-100 border-t border-slate-300 flex flex-wrap items-center justify-between gap-2 shrink-0">
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={handleMarkForReviewAndNext}
-                className="px-4 py-2 rounded bg-white hover:bg-slate-200 border border-slate-400 text-xs font-bold text-slate-800"
-              >
-                Mark for Review & Next
-              </button>
-              <button
-                type="button"
-                onClick={handleClearResponse}
-                className="px-4 py-2 rounded bg-white hover:bg-slate-200 border border-slate-400 text-xs font-bold text-slate-800"
-              >
-                Clear Response
-              </button>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleSaveAndNext}
-              className="px-6 py-2 rounded bg-[#2c5aa0] hover:bg-blue-800 text-white text-xs font-bold shadow"
-            >
-              Save & Next
-            </button>
-          </div>
-        </div>
-
-        <div className="lg:w-3/12 bg-[#e8f1f8] flex flex-col justify-between overflow-y-auto">
-          <div>
-            <div className="p-3 bg-white border-b border-slate-300 flex items-center gap-3">
-              <div className="w-10 h-10 rounded bg-slate-200 border border-slate-300 flex items-center justify-center font-bold text-slate-700">
-                {student.name.charAt(0)}
-              </div>
-              <div className="overflow-hidden">
-                <div className="text-xs font-bold text-slate-900 truncate">{student.name}</div>
-                <div className="text-[11px] font-mono text-slate-500">{student.id}</div>
-              </div>
-            </div>
-
-            <div className="p-3 bg-white border-b border-slate-300 grid grid-cols-2 gap-2 text-[11px]">
-              <div className="flex items-center gap-2">
-                <span className="w-6 h-6 rounded-b-lg bg-emerald-600 text-white font-bold flex items-center justify-center shrink-0">
-                  {counts.answered}
-                </span>
-                <span>Answered</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-6 h-6 rounded-t-lg bg-rose-600 text-white font-bold flex items-center justify-center shrink-0">
-                  {counts.notAnswered}
-                </span>
-                <span>Not Answered</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-6 h-6 rounded bg-slate-200 border border-slate-400 text-slate-800 font-bold flex items-center justify-center shrink-0">
-                  {counts.notVisited}
-                </span>
-                <span>Not Visited</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-6 h-6 rounded-full bg-purple-700 text-white font-bold flex items-center justify-center shrink-0">
-                  {counts.marked}
-                </span>
-                <span>Marked for Review</span>
-              </div>
-            </div>
-
-            <div className="bg-[#2c5aa0] text-white px-3 py-1.5 text-xs font-bold">
-              Choose a Question
-            </div>
-
-            <div className="p-3 grid grid-cols-5 gap-2">
-              {questions.map((_, idx) => {
-                const st = statuses[idx];
-                const isCurrent = idx === currentIdx;
-                let badgeStyle = 'bg-slate-200 border border-slate-400 text-slate-800 rounded';
-                if (st === 'answered') badgeStyle = 'bg-emerald-600 text-white rounded-b-xl';
-                if (st === 'not_answered') badgeStyle = 'bg-rose-600 text-white rounded-t-xl';
-                if (st === 'marked' || st === 'answered_marked') badgeStyle = 'bg-purple-700 text-white rounded-full';
-
-                return (
-                  <button
-                    key={idx}
-                    onClick={() => navigateToQuestion(idx)}
-                    className={`h-9 font-bold text-xs flex items-center justify-center relative transition ${badgeStyle} ${
-                      isCurrent ? 'ring-2 ring-offset-1 ring-amber-500' : ''
-                    }`}
-                  >
-                    {idx + 1}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="p-3 bg-white border-t border-slate-300">
-            <button
-              type="button"
-              onClick={() => setShowSubmitModal(true)}
-              className="w-full py-2.5 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow"
-            >
-              Submit Test
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {showSubmitModal && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
-            <h3 className="text-lg font-bold text-slate-900 mb-2">Exam Summary & Final Submission</h3>
-            <p className="text-xs text-slate-500 mb-4">Are you sure you want to submit your test?</p>
-            <div className="grid grid-cols-2 gap-2.5 bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs mb-5">
-              <div>Total Questions: <strong>{questions.length}</strong></div>
-              <div>Answered: <strong className="text-emerald-600">{Object.keys(answers).length}</strong></div>
-              <div>Not Answered: <strong className="text-rose-600">{counts.notAnswered}</strong></div>
-              <div>Not Visited: <strong>{counts.notVisited}</strong></div>
-            </div>
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setShowSubmitModal(false)}
-                className="px-4 py-2 rounded-lg border border-slate-300 text-xs font-bold text-slate-700"
-              >
-                Resume Test
-              </button>
-              <button
-                onClick={() => finalizeSubmission(false)}
-                className="px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold"
-              >
-                Yes, Submit Final Test
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ============================================================================
-// COMPONENT 5: SCORECARD, RANK, STRENGTH/WEAKNESS & PER-QUESTION TIME REVIEW
-// ============================================================================
-function ExamScorecardScreen({ mock, attempt, allMockAttempts, onBackToDashboard }) {
-  const rankedAttempts = useMemo(() => {
-    const list = allMockAttempts.some(a => a.id === attempt.id)
-      ? [...allMockAttempts]
-      : [attempt, ...allMockAttempts];
-
-    return list.sort((a, b) => {
-      if (b.score !== a.score) return b.score - a.score;
-      if (b.accuracy !== a.accuracy) return b.accuracy - a.accuracy;
-      return (a.totalTimeSeconds || 99999) - (b.totalTimeSeconds || 99999);
-    });
-  }, [allMockAttempts, attempt]);
-
-  const candidateRank = rankedAttempts.findIndex(a => a.id === attempt.id) + 1;
-  const totalCandidates = rankedAttempts.length;
-  const percentile = totalCandidates > 1
-    ? Math.round(((totalCandidates - candidateRank) / (totalCandidates - 1)) * 100)
-    : 100;
-
-  const sectionAnalysis = useMemo(() => {
-    const map = {};
-    mock.questions.forEach((q, idx) => {
-      const sec = q.section || 'General';
-      if (!map[sec]) {
-        map[sec] = { section: sec, total: 0, correct: 0, wrong: 0, unattempted: 0, timeSeconds: 0 };
-      }
-      map[sec].total += 1;
-      map[sec].timeSeconds += (attempt.questionTimes?.[idx] || 0);
-      const ans = attempt.userAnswers?.[idx];
-      if (ans === undefined) map[sec].unattempted += 1;
-      else if (ans === q.correctIndex) map[sec].correct += 1;
-      else map[sec].wrong += 1;
-    });
-
-    return Object.values(map).map(s => {
-      const attempted = s.correct + s.wrong;
-      const accuracy = attempted > 0 ? Math.round((s.correct / attempted) * 100) : 0;
-      const netScore = Number(((s.correct * mock.positiveMark) - (s.wrong * mock.negativeMark)).toFixed(2));
-      let tag = 'Average';
-      if (attempted > 0 && accuracy >= 70) tag = 'Strength';
-      else if (attempted === 0 || accuracy < 50) tag = 'Weakness';
-      return { ...s, attempted, accuracy, netScore, tag };
-    });
-  }, [mock, attempt]);
-
-  const strengths = sectionAnalysis.filter(s => s.tag === 'Strength');
-  const weaknesses = sectionAnalysis.filter(s => s.tag === 'Weakness');
-  const avgTimePerQ = mock.questions.length > 0
-    ? Math.round((attempt.totalTimeSeconds || 0) / mock.questions.length)
-    : 0;
-
-  return (
-    <div className="min-h-screen bg-slate-50 py-8 px-4">
-      <div className="max-w-5xl mx-auto space-y-6">
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-5 mb-6">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">PATHSHALA Official Evaluation Report</span>
-                {attempt.autoSubmitted && (
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800">
-                    Auto-Submitted on Timeout
-                  </span>
-                )}
-              </div>
-              <h2 className="text-2xl font-extrabold text-slate-900 mt-1">{mock.title}</h2>
-              <p className="text-xs text-slate-500 mt-1">
-                Candidate: <strong>{attempt.studentName}</strong> ({attempt.studentId}) • Folder: <strong>{mock.category} → {getMockSubCategory(mock)}</strong> • Total Time: <strong>{formatDurationHuman(attempt.totalTimeSeconds)}</strong> (Avg {avgTimePerQ}s/Q)
-              </p>
-            </div>
-            <button
-              onClick={onBackToDashboard}
-              className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold"
-            >
-              Back to Dashboard
-            </button>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3.5">
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center">
-              <div className="text-xs text-amber-800 font-bold flex items-center justify-center gap-1">
-                <Award className="w-3.5 h-3.5" /> Portal Rank
-              </div>
-              <div className="text-2xl font-black text-amber-950 mt-1">#{candidateRank} <span className="text-xs font-semibold text-amber-700">/ {totalCandidates}</span></div>
-              <div className="text-[11px] text-amber-700 font-semibold mt-0.5">{percentile}%ile</div>
-            </div>
-            <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 text-center">
-              <div className="text-xs text-indigo-600 font-semibold">Net Score</div>
-              <div className="text-2xl font-black text-indigo-950 mt-1">{attempt.score} / {attempt.maxScore}</div>
-            </div>
-            <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 text-center">
-              <div className="text-xs text-emerald-600 font-semibold">Correct</div>
-              <div className="text-2xl font-black text-emerald-900 mt-1">{attempt.correct}</div>
-            </div>
-            <div className="bg-rose-50 border border-rose-100 rounded-xl p-4 text-center">
-              <div className="text-xs text-rose-600 font-semibold">Incorrect</div>
-              <div className="text-2xl font-black text-rose-900 mt-1">{attempt.wrong}</div>
-            </div>
-            <div className="bg-slate-100 border border-slate-200 rounded-xl p-4 text-center">
-              <div className="text-xs text-slate-600 font-semibold">Accuracy</div>
-              <div className="text-2xl font-black text-slate-900 mt-1">{attempt.accuracy}%</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5">
-          <div>
-            <h3 className="font-bold text-lg text-slate-900">Section-Wise Strengths & Weaknesses Analysis</h3>
-            <p className="text-xs text-slate-500">Diagnostic evaluation based on your section accuracy and time management.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200">
-              <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm mb-2">
-                <TrendingUp className="w-4 h-4" /> Your Strong Areas (≥70% Accuracy)
-              </div>
-              {strengths.length === 0 ? (
-                <p className="text-xs text-emerald-700">No section crossed 70% accuracy yet. Review explanations below to build mastery.</p>
-              ) : (
-                <ul className="space-y-1 text-xs text-emerald-900 font-medium">
-                  {strengths.map(s => (
-                    <li key={s.section}>• <strong>{s.section}</strong> — {s.accuracy}% accuracy ({s.correct}/{s.total} correct in {formatDurationHuman(s.timeSeconds)})</li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            <div className="p-4 rounded-xl bg-rose-50/70 border border-rose-200">
-              <div className="flex items-center gap-2 text-rose-800 font-bold text-sm mb-2">
-                <TrendingDown className="w-4 h-4" /> Focus / Weak Areas (&lt;50% Accuracy)
-              </div>
-              {weaknesses.length === 0 ? (
-                <p className="text-xs text-rose-700">Great balance! None of your sections fell below 50% accuracy.</p>
-              ) : (
-                <ul className="space-y-1 text-xs text-rose-900 font-medium">
-                  {weaknesses.map(s => (
-                    <li key={s.section}>• <strong>{s.section}</strong> — {s.accuracy}% accuracy ({s.wrong} wrong, {s.unattempted} skipped • {formatDurationHuman(s.timeSeconds)})</li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
-
-          <div className="overflow-x-auto border border-slate-200 rounded-xl">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 text-slate-600 uppercase">
-                <tr>
-                  <th className="px-4 py-3">Section</th>
-                  <th className="px-4 py-3">Attempted</th>
-                  <th className="px-4 py-3">Correct / Wrong</th>
-                  <th className="px-4 py-3">Net Score</th>
-                  <th className="px-4 py-3">Accuracy</th>
-                  <th className="px-4 py-3">Time Spent</th>
-                  <th className="px-4 py-3">Verdict</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {sectionAnalysis.map(s => (
-                  <tr key={s.section}>
-                    <td className="px-4 py-3 font-bold text-slate-900">{s.section}</td>
-                    <td className="px-4 py-3">{s.attempted} / {s.total}</td>
-                    <td className="px-4 py-3">
-                      <span className="text-emerald-600 font-bold">{s.correct}C</span> / <span className="text-rose-600 font-bold">{s.wrong}W</span>
-                    </td>
-                    <td className="px-4 py-3 font-bold text-indigo-600">{s.netScore}</td>
-                    <td className="px-4 py-3 font-semibold">{s.accuracy}%</td>
-                    <td className="px-4 py-3 text-slate-600">{formatDurationHuman(s.timeSeconds)}</td>
-                    <td className="px-4 py-3">
-                      <span className={`px-2 py-0.5 rounded-full font-bold text-[11px] ${
-                        s.tag === 'Strength' ? 'bg-emerald-100 text-emerald-800' :
-                        s.tag === 'Weakness' ? 'bg-rose-100 text-rose-800' :
-                        'bg-amber-100 text-amber-800'
-                      }`}>
-                        {s.tag}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-bold text-lg text-slate-900">Mock Leaderboard (Top Candidates)</h3>
-              <p className="text-xs text-slate-500">Ranked by Net Score, Accuracy, and Completion Time.</p>
-            </div>
-            <span className="text-xs font-bold px-3 py-1 rounded-full bg-indigo-50 text-indigo-700">
-              Your Rank: #{candidateRank} of {totalCandidates}
-            </span>
-          </div>
-
-          <div className="overflow-x-auto border border-slate-200 rounded-xl">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 text-slate-600 uppercase">
-                <tr>
-                  <th className="px-4 py-3">Rank</th>
-                  <th className="px-4 py-3">Candidate</th>
-                  <th className="px-4 py-3">Net Score</th>
-                  <th className="px-4 py-3">Accuracy</th>
-                  <th className="px-4 py-3">Time Taken</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {rankedAttempts.slice(0, 10).map((row, idx) => {
-                  const isMe = row.id === attempt.id;
-                  return (
-                    <tr key={row.id} className={isMe ? 'bg-indigo-50/80 font-semibold' : ''}>
-                      <td className="px-4 py-3 font-black text-slate-900">#{idx + 1}</td>
-                      <td className="px-4 py-3">
-                        {row.studentName} <span className="font-mono text-slate-400">({row.studentId})</span>
-                        {isMe && <span className="ml-2 px-2 py-0.5 rounded bg-indigo-600 text-white text-[10px]">YOU</span>}
-                      </td>
-                      <td className="px-4 py-3 font-bold text-indigo-700">{row.score} / {row.maxScore}</td>
-                      <td className="px-4 py-3">{row.accuracy}%</td>
-                      <td className="px-4 py-3 text-slate-600">{formatDurationHuman(row.totalTimeSeconds)}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5">
-          <h3 className="font-bold text-lg text-slate-900">Question-by-Question Time & Solution Review</h3>
-          {mock.questions.map((q, idx) => {
-            const userChoice = attempt.userAnswers?.[idx];
-            const isCorrect = userChoice === q.correctIndex;
-            const isSkipped = userChoice === undefined;
-            const timeTaken = attempt.questionTimes?.[idx] || 0;
-
-            return (
-              <div key={q.id} className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2.5">
-                <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-                  <span className="font-bold text-slate-700">Q{idx + 1} • {q.section}</span>
-                  <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-blue-800 font-semibold flex items-center gap-1">
-                      <Timer className="w-3 h-3" /> Time Taken: {timeTaken}s
-                    </span>
-                    <span className={`px-2.5 py-0.5 rounded-full font-bold ${
-                      isSkipped ? 'bg-slate-200 text-slate-700' :
-                      isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
-                    }`}>
-                      {isSkipped ? 'Unattempted' : isCorrect ? `Correct (+${mock.positiveMark})` : `Wrong (-${mock.negativeMark})`}
-                    </span>
-                  </div>
-                </div>
-                <p className="text-sm font-semibold text-slate-900 whitespace-pre-line">{q.text}</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                  {q.options.map((opt, oIdx) => (
-                    <div
-                      key={oIdx}
-                      className={`p-2.5 rounded-lg border ${
-                        oIdx === q.correctIndex
-                          ? 'bg-emerald-50 border-emerald-400 text-emerald-900 font-bold'
-                          : oIdx === userChoice
-                          ? 'bg-rose-50 border-rose-400 text-rose-900 font-semibold'
-                          : 'bg-white border-slate-200 text-slate-600'
-                      }`}
-                    >
-                      ({String.fromCharCode(65 + oIdx)}) {opt}
-                    </div>
-                  ))}
-                </div>
-                {q.explanation && (
-                  <div className="text-xs bg-blue-50/70 border border-blue-100 text-slate-700 p-3 rounded-lg">
-                    <strong>Explanation:</strong> {q.explanation}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ============================================================================
-// COMPONENT 6: STUDY NOTE READER
-// ============================================================================
-function StudyNoteReader({ note, onClose }) {
-  return (
-    <div className="min-h-screen bg-slate-100 py-8 px-4">
-      <div className="max-w-3xl mx-auto bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden">
-        <div className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
-          <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
-              PATHSHALA Study Capsule • {note.category}
-            </span>
-            <h2 className="text-lg font-bold mt-0.5">{note.title}</h2>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => window.print()}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold"
-            >
-              <Printer className="w-3.5 h-3.5" /> Print
-            </button>
-            <button
-              onClick={onClose}
-              className="px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 text-xs font-bold"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-        <div className="p-6 sm:p-8">
-          <div className="text-xs text-slate-500 mb-4 pb-3 border-b border-slate-100 flex justify-between">
-            <span>Subject: <strong>{note.subject}</strong></span>
-            <span>{note.readTime}</span>
-          </div>
-          <div className="text-sm text-slate-800 whitespace-pre-line leading-relaxed font-normal">
-            {note.content}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ============================================================================
-// COMPONENT 7: ADMIN CONTROL PANEL (WITH FOLDER MANAGEMENT & ANALYTICS)
-// ============================================================================
-function AdminDashboard({
-  admin, users, mocks, notes, attempts,
-  onSaveMock, onDeleteMock, onSaveNote, onDeleteNote, onPreviewNote, onChangePassword, onLogout
-}) {
-  const [tab, setTab] = useState('mocks');
-  const [editingMock, setEditingMock] = useState(null);
-  const [editingNote, setEditingNote] = useState(null);
-  const [selectedMockFilter, setSelectedMockFilter] = useState('ALL');
-  const [adminFolderFilter, setAdminFolderFilter] = useState('ALL');
-
-  const students = users.filter(u => u.role === 'student');
-
-  const filteredAttempts = useMemo(() => {
-    const list = selectedMockFilter === 'ALL'
-      ? [...attempts]
-      : attempts.filter(a => a.mockId === selectedMockFilter);
-    return list.sort((a, b) => (b.score - a.score) || (b.accuracy - a.accuracy) || ((a.totalTimeSeconds || 99999) - (b.totalTimeSeconds || 99999)));
-  }, [attempts, selectedMockFilter]);
-
-  const adminFilteredMocks = useMemo(() => {
-    if (adminFolderFilter === 'ALL') return mocks;
-    return mocks.filter(m => m.category === adminFolderFilter);
-  }, [mocks, adminFolderFilter]);
-
-  const createNewMockTemplate = () => {
-    setEditingMock({
-      id: `mock-${Date.now()}`,
-      title: '',
-      category: 'SSC',
-      subCategory: 'CGL',
-      durationMinutes: 60,
-      positiveMark: 2.0,
-      negativeMark: 0.5,
-      instructions: 'Standard TCS iON CBT instructions apply.',
-      questions: [
-        {
-          id: `q-${Date.now()}`,
-          section: 'General Awareness',
-          text: '',
-          options: ['', '', '', ''],
-          correctIndex: 0,
-          explanation: ''
-        }
-      ]
-    });
-  };
-
-  const createNewNoteTemplate = () => {
-    setEditingNote({
-      id: `note-${Date.now()}`,
-      title: '',
-      category: 'SSC',
-      subject: 'General Studies',
-      readTime: '5 min read',
-      updatedAt: new Date().toISOString().split('T')[0],
-      summary: '',
-      content: ''
-    });
-  };
-
-  return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
-      <header className="bg-slate-950 text-white border-b border-slate-800 sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-amber-500 text-slate-950 font-black flex items-center justify-center text-lg">
-              P
-            </div>
-            <div>
-              <span className="font-extrabold tracking-tight text-lg">PATHSHALA</span>
-              <span className="ml-2 text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                Admin Control Panel
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div className="text-right hidden sm:block">
-              <div className="text-sm font-semibold">{admin.name}</div>
-              <div className="text-xs font-mono text-amber-400">{admin.id}</div>
-            </div>
-            <button
-              onClick={onLogout}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-600 text-xs font-semibold transition"
-            >
-              <LogOut className="w-3.5 h-3.5" /> Logout
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 flex-1">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white p-4 rounded-2xl border border-slate-200">
-            <div className="text-xs text-slate-500 font-semibold">Total CBT Mocks</div>
-            <div className="text-2xl font-black text-slate-900 mt-1">{mocks.length}</div>
-          </div>
-          <div className="bg-white p-4 rounded-2xl border border-slate-200">
-            <div className="text-xs text-slate-500 font-semibold">Study Capsules</div>
-            <div className="text-2xl font-black text-slate-900 mt-1">{notes.length}</div>
-          </div>
-          <div className="bg-white p-4 rounded-2xl border border-slate-200">
-            <div className="text-xs text-slate-500 font-semibold">Registered Students</div>
-            <div className="text-2xl font-black text-indigo-600 mt-1">{students.length}</div>
-          </div>
-          <div className="bg-white p-4 rounded-2xl border border-slate-200">
-            <div className="text-xs text-slate-500 font-semibold">Total Exam Submissions</div>
-            <div className="text-2xl font-black text-emerald-600 mt-1">{attempts.length}</div>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap gap-2 bg-white p-1.5 rounded-xl border border-slate-200 shadow-sm w-fit mb-6">
-          {[
-            { id: 'mocks', label: 'Manage Mock Tests', icon: Clock },
-            { id: 'results', label: `Candidate Results (${attempts.length})`, icon: BarChart3 },
-            { id: 'notes', label: 'Manage Study Notes', icon: BookOpen },
-            { id: 'students', label: 'Registered Candidates', icon: Users },
-            { id: 'password', label: 'Admin Password', icon: KeyRound }
-          ].map(t => {
-            const Icon = t.icon;
-            return (
-              <button
-                key={t.id}
-                onClick={() => { setTab(t.id); setEditingMock(null); setEditingNote(null); }}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition ${
-                  tab === t.id ? 'bg-amber-600 text-white' : 'text-slate-600 hover:bg-slate-100'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                <span>{t.label}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {tab === 'mocks' && !editingMock && (
-          <div className="space-y-4">
-            <div className="flex flex-wrap justify-between items-center gap-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="font-bold text-lg text-slate-900 mr-2">Exam Folders</h3>
-                {['ALL', 'SSC', 'Railway', 'WBPSC'].map(cat => (
-                  <button
-                    key={cat}
-                    onClick={() => setAdminFolderFilter(cat)}
-                    className={`px-3 py-1 rounded-full text-xs font-bold border ${
-                      adminFolderFilter === cat
-                        ? 'bg-slate-900 text-white border-slate-900'
-                        : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'
-                    }`}
-                  >
-                    {cat === 'ALL' ? `All (${mocks.length})` : `${cat} (${mocks.filter(m => m.category === cat).length})`}
-                  </button>
-                ))}
-              </div>
-              <button
-                onClick={createNewMockTemplate}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold"
-              >
-                <Plus className="w-4 h-4" /> Create New Mock
-              </button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {adminFilteredMocks.map(m => (
-                <div key={m.id} className="bg-white p-5 rounded-2xl border border-slate-200 flex items-center justify-between gap-4">
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">{m.category}</span>
-                      <span className="text-xs font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">
-                        {getMockSubCategory(m)}
-                      </span>
-                    </div>
-                    <h4 className="font-bold text-slate-900 mt-1.5">{m.title}</h4>
-                    <p className="text-xs text-slate-500 mt-1">{m.questions?.length || 0} Questions • {m.durationMinutes} mins</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setEditingMock({ ...m, subCategory: getMockSubCategory(m) })}
-                      className="p-2 rounded-lg bg-slate-100 hover:bg-indigo-100 text-slate-700 hover:text-indigo-700"
-                    >
-                      <Edit3 className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => onDeleteMock(m.id)}
-                      className="p-2 rounded-lg bg-slate-100 hover:bg-rose-100 text-slate-700 hover:text-rose-700"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {tab === 'mocks' && editingMock && (
-          <MockEditorForm
-            mock={editingMock}
-            onSave={async (updated) => {
-              await onSaveMock(updated);
-              setEditingMock(null);
-            }}
-            onCancel={() => setEditingMock(null)}
-          />
-        )}
-
-        {tab === 'results' && (
-          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-            <div className="p-5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h3 className="font-bold text-slate-900">Candidate Mock Performance & Leaderboard</h3>
-                <p className="text-xs text-slate-500">View attempted count, correct/wrong answers, net score, accuracy, and time taken for every student.</p>
-              </div>
-              <select
-                value={selectedMockFilter}
-                onChange={(e) => setSelectedMockFilter(e.target.value)}
-                className="px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-bold bg-white outline-none"
-              >
-                <option value="ALL">All Mock Tests ({attempts.length})</option>
-                {mocks.map(m => (
-                  <option key={m.id} value={m.id}>{m.category} ({getMockSubCategory(m)}) — {m.title}</option>
-                ))}
-              </select>
-            </div>
-
-            {filteredAttempts.length === 0 ? (
-              <div className="p-10 text-center text-sm text-slate-500">
-                No candidate submissions recorded for this filter yet.
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50 text-slate-600 uppercase">
-                    <tr>
-                      <th className="px-4 py-3">Rank</th>
-                      <th className="px-4 py-3">Candidate</th>
-                      <th className="px-4 py-3">Mock Test</th>
-                      <th className="px-4 py-3">Attempted</th>
-                      <th className="px-4 py-3">Correct</th>
-                      <th className="px-4 py-3">Wrong</th>
-                      <th className="px-4 py-3">Net Score</th>
-                      <th className="px-4 py-3">Accuracy</th>
-                      <th className="px-4 py-3">Time Taken</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {filteredAttempts.map((att, idx) => {
-                      const attemptedCount = (att.correct || 0) + (att.wrong || 0);
-                      const totalQs = attemptedCount + (att.unattempted || 0);
-                      return (
-                        <tr key={att.id} className="hover:bg-slate-50">
-                          <td className="px-4 py-3.5 font-black text-amber-600">#{idx + 1}</td>
-                          <td className="px-4 py-3.5">
-                            <div className="font-bold text-slate-900">{att.studentName}</div>
-                            <div className="font-mono text-[11px] text-slate-500">{att.studentId}</div>
-                          </td>
-                          <td className="px-4 py-3.5 font-medium text-slate-700">{att.mockTitle}</td>
-                          <td className="px-4 py-3.5 font-semibold">{attemptedCount} / {totalQs}</td>
-                          <td className="px-4 py-3.5 font-bold text-emerald-600">{att.correct}</td>
-                          <td className="px-4 py-3.5 font-bold text-rose-600">{att.wrong}</td>
-                          <td className="px-4 py-3.5 font-black text-indigo-600">{att.score} / {att.maxScore}</td>
-                          <td className="px-4 py-3.5 font-semibold">{att.accuracy}%</td>
-                          <td className="px-4 py-3.5 text-slate-600">{formatDurationHuman(att.totalTimeSeconds)}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )}
-
-        {tab === 'notes' && !editingNote && (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="font-bold text-lg text-slate-900">Published Study Notes</h3>
-              <button
-                onClick={createNewNoteTemplate}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold"
-              >
-                <Plus className="w-4 h-4" /> Add Study Note
-              </button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {notes.map(n => (
-                <div key={n.id} className="bg-white p-5 rounded-2xl border border-slate-200 flex items-center justify-between gap-4">
-                  <div>
-                    <span className="text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">{n.category} • {n.subject}</span>
-                    <h4 className="font-bold text-slate-900 mt-1.5">{n.title}</h4>
-                    <p className="text-xs text-slate-500 mt-1 line-clamp-1">{n.summary}</p>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <button
-                      onClick={() => onPreviewNote(n)}
-                      className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => setEditingNote(n)}
-                      className="p-2 rounded-lg bg-slate-100 hover:bg-indigo-100 text-slate-700 hover:text-indigo-700"
-                    >
-                      <Edit3 className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => onDeleteNote(n.id)}
-                      className="p-2 rounded-lg bg-slate-100 hover:bg-rose-100 text-slate-700 hover:text-rose-700"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {tab === 'notes' && editingNote && (
-          <NoteEditorForm
-            note={editingNote}
-            onSave={async (updated) => {
-              await onSaveNote(updated);
-              setEditingNote(null);
-            }}
-            onCancel={() => setEditingNote(null)}
-          />
-        )}
-
-        {tab === 'students' && (
-          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-            <div className="p-5 border-b border-slate-100">
-              <h3 className="font-bold text-slate-900">Registered Candidates Directory</h3>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-slate-50 text-slate-600 text-xs uppercase">
-                  <tr>
-                    <th className="px-5 py-3">Unique Login ID</th>
-                    <th className="px-5 py-3">Candidate Name</th>
-                    <th className="px-5 py-3">Email</th>
-                    <th className="px-5 py-3">Mobile</th>
-                    <th className="px-5 py-3">Stream</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {students.map(s => (
-                    <tr key={s.id} className="hover:bg-slate-50">
-                      <td className="px-5 py-3.5 font-mono font-bold text-indigo-600">{s.id}</td>
-                      <td className="px-5 py-3.5 font-semibold text-slate-900">{s.name}</td>
-                      <td className="px-5 py-3.5 text-slate-600">{s.email}</td>
-                      <td className="px-5 py-3.5 text-slate-600">{s.phone}</td>
-                      <td className="px-5 py-3.5 font-bold">{s.targetExam}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {tab === 'password' && (
-          <div className="max-w-md">
-            <ChangePasswordCard onChangePassword={onChangePassword} />
-          </div>
-        )}
-      </main>
-    </div>
-  );
-}
-
-// ============================================================================
-// COMPONENT 8: ADMIN MOCK (WITH FOLDER SELECTOR & BULK JSON IMPORTER) & NOTE EDITOR
-// ============================================================================
-function MockEditorForm({ mock, onSave, onCancel }) {
-  const [form, setForm] = useState({
-    ...mock,
-    subCategory: getMockSubCategory(mock)
-  });
-  const [showBulkBox, setShowBulkBox] = useState(false);
-  const [bulkJsonText, setBulkJsonText] = useState('');
-  const [bulkError, setBulkError] = useState('');
-
-  const handleCategoryChange = (newCategory) => {
-    const validSubs = EXAM_FOLDERS[newCategory] || ['General'];
-    setForm({
-      ...form,
-      category: newCategory,
-      subCategory: validSubs[0]
-    });
-  };
-
-  const updateQuestion = (idx, field, value) => {
-    const updatedQs = [...form.questions];
-    updatedQs[idx] = { ...updatedQs[idx], [field]: value };
-    setForm({ ...form, questions: updatedQs });
-  };
-
-  const updateOption = (qIdx, optIdx, value) => {
-    const updatedQs = [...form.questions];
-    const opts = [...updatedQs[qIdx].options];
-    opts[optIdx] = value;
-    updatedQs[qIdx] = { ...updatedQs[qIdx], options: opts };
-    setForm({ ...form, questions: updatedQs });
-  };
-
-  const addQuestion = () => {
-    setForm({
-      ...form,
-      questions: [
-        ...form.questions,
-        {
-          id: `q-${Date.now()}`,
-          section: 'General Awareness',
-          text: '',
-          options: ['', '', '', ''],
-          correctIndex: 0,
-          explanation: ''
-        }
-      ]
-    });
-  };
-
-  const removeQuestion = (idx) => {
-    if (form.questions.length <= 1) return;
-    setForm({
-      ...form,
-      questions: form.questions.filter((_, i) => i !== idx)
-    });
-  };
-
-  const handleBulkImport = (replaceExisting = false) => {
-    setBulkError('');
-    try {
-      const parsed = JSON.parse(bulkJsonText.trim());
-      if (!Array.isArray(parsed) || parsed.length === 0) {
-        setBulkError('Please paste a valid JSON array starting with [ and ending with ].');
-        return;
-      }
-      const normalized = parsed.map((q, i) => ({
-        id: q.id || `q-${Date.now()}-${i}`,
-        section: q.section || 'General Awareness',
-        text: q.text || '',
-        options: Array.isArray(q.options) && q.options.length === 4 ? q.options : ['', '', '', ''],
-        correctIndex: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
-        explanation: q.explanation || ''
-      }));
-
-      const hasOnlyBlankStarter =
-        form.questions.length === 1 &&
-        !form.questions[0].text.trim() &&
-        form.questions[0].options.every(o => !o.trim());
-
-      setForm({
-        ...form,
-        questions: (replaceExisting || hasOnlyBlankStarter)
-          ? normalized
-          : [...form.questions, ...normalized]
-      });
-      setBulkJsonText('');
-      setShowBulkBox(false);
-    } catch (err) {
-      setBulkError('Invalid JSON format. Make sure you copied the full [ ... ] block.');
-    }
-  };
-
-  const subFolderOptions = EXAM_FOLDERS[form.category] || ['General'];
-
-  return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
-      <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-        <h3 className="font-bold text-lg text-slate-900">Configure Mock Test & Folder</h3>
-        <button onClick={onCancel} className="text-xs font-bold text-slate-500 hover:text-slate-800">Cancel</button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <div className="md:col-span-2">
-          <label className="block text-xs font-bold text-slate-700 mb-1">Mock Title *</label>
-          <input
-            type="text"
-            value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-            placeholder="e.g. SSC CGL Tier-1 2026 (30 Sep Shift-3)"
-            className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">Exam Stream</label>
-          <select
-            value={form.category}
-            onChange={(e) => handleCategoryChange(e.target.value)}
-            className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm bg-white"
-          >
-            <option value="SSC">SSC</option>
-            <option value="Railway">Railway</option>
-            <option value="WBPSC">WBPSC</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">Exam Folder</label>
-          <select
-            value={form.subCategory}
-            onChange={(e) => setForm({ ...form, subCategory: e.target.value })}
-            className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm bg-white"
-          >
-            {subFolderOptions.map(sub => (
-              <option key={sub} value={sub}>{sub}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">Duration (Mins)</label>
-          <input
-            type="number"
-            value={form.durationMinutes}
-            onChange={(e) => setForm({ ...form, durationMinutes: Number(e.target.value) })}
-            className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"
-          />
-        </div>
-      </div>
-
-      <div className="rounded-xl border border-indigo-200 bg-indigo-50/50 p-4 space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <h4 className="font-bold text-sm text-indigo-950">Bulk Import Questions (JSON)</h4>
-            <p className="text-xs text-indigo-700">Paste 25–100 questions in PATHSHALA JSON format to load them instantly.</p>
-          </div>
-          <button
-            type="button"
-            onClick={() => { setShowBulkBox(!showBulkBox); setBulkError(''); }}
-            className="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold"
-          >
-            {showBulkBox ? 'Hide JSON Box' : 'Paste JSON Questions'}
-          </button>
-        </div>
-
-        {showBulkBox && (
-          <div className="space-y-3 pt-2">
-            {bulkError && (
-              <div className="p-2.5 rounded-lg bg-rose-100 border border-rose-300 text-rose-800 text-xs font-medium">
-                {bulkError}
-              </div>
-            )}
-            <textarea
-              rows={7}
-              value={bulkJsonText}
-              onChange={(e) => setBulkJsonText(e.target.value)}
-              placeholder='Paste JSON array here: [ { "section": "...", "text": "...", "options": ["A","B","C","D"], "correctIndex": 0, "explanation": "..." } ]'
-              className="w-full p-3 rounded-xl border border-indigo-300 text-xs font-mono bg-white outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-            <div className="flex flex-wrap justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => handleBulkImport(false)}
-                className="px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold"
-              >
-                Append to Existing Questions
-              </button>
-              <button
-                type="button"
-                onClick={() => handleBulkImport(true)}
-                className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold"
-              >
-                Replace All & Load Questions
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h4 className="font-bold text-sm text-slate-800">Questions ({form.questions.length})</h4>
-          <button
-            type="button"
-            onClick={addQuestion}
-            className="px-3 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-bold flex items-center gap-1"
-          >
-            <Plus className="w-3.5 h-3.5" /> Add Single Question
-          </button>
-        </div>
-
-        {form.questions.map((q, qIdx) => (
-          <div key={q.id} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-xs font-bold text-indigo-600">Question #{qIdx + 1}</span>
-              <button
-                type="button"
-                onClick={() => removeQuestion(qIdx)}
-                className="text-xs text-rose-600 hover:underline"
-              >
-                Remove
-              </button>
-            </div>
-            <input
-              type="text"
-              value={q.section}
-              onChange={(e) => updateQuestion(qIdx, 'section', e.target.value)}
-              placeholder="Section Name (e.g. Quantitative Aptitude)"
-              className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white"
-            />
-            <textarea
-              rows={2}
-              value={q.text}
-              onChange={(e) => updateQuestion(qIdx, 'text', e.target.value)}
-              placeholder="Enter question text..."
-              className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white"
-            />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {q.options.map((opt, oIdx) => (
-                <div key={oIdx} className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name={`correct-${qIdx}`}
-                    checked={q.correctIndex === oIdx}
-                    onChange={() => updateQuestion(qIdx, 'correctIndex', oIdx)}
-                  />
-                  <input
-                    type="text"
-                    value={opt}
-                    onChange={(e) => updateOption(qIdx, oIdx, e.target.value)}
-                    placeholder={`Option ${String.fromCharCode(65 + oIdx)}`}
-                    className="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-xs bg-white"
-                  />
-                </div>
-              ))}
-            </div>
-            <input
-              type="text"
-              value={q.explanation}
-              onChange={(e) => updateQuestion(qIdx, 'explanation', e.target.value)}
-              placeholder="Solution explanation (optional)"
-              className="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-xs bg-white"
-            />
-          </div>
-        ))}
-      </div>
-
-      <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
-        <button onClick={onCancel} className="px-4 py-2 rounded-xl border border-slate-300 text-xs font-bold">
-          Cancel
-        </button>
-        <button
-          onClick={() => form.title.trim() && onSave(form)}
-          className="px-6 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold"
-        >
-          Save & Publish Mock
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function NoteEditorForm({ note, onSave, onCancel }) {
-  const [form, setForm] = useState(note);
-
-  return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
-      <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-        <h3 className="font-bold text-lg text-slate-900">Study Note Editor</h3>
-        <button onClick={onCancel} className="text-xs font-bold text-slate-500">Cancel</button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="md:col-span-2">
-          <label className="block text-xs font-bold text-slate-700 mb-1">Note Title *</label>
-          <input
-            type="text"
-            value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-            className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">Exam Stream</label>
-          <select
-            value={form.category}
-            onChange={(e) => setForm({ ...form, category: e.target.value })}
-            className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm bg-white"
-          >
-            <option value="SSC">SSC</option>
-            <option value="Railway">Railway</option>
-            <option value="WBPSC">WBPSC</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">Subject</label>
-          <input
-            type="text"
-            value={form.subject}
-            onChange={(e) => setForm({ ...form, subject: e.target.value })}
-            className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">Short Summary</label>
-          <input
-            type="text"
-            value={form.summary}
-            onChange={(e) => setForm({ ...form, summary: e.target.value })}
-            className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"
-          />
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-xs font-bold text-slate-700 mb-1">Full Study Content *</label>
-        <textarea
-          rows={10}
-          value={form.content}
-          onChange={(e) => setForm({ ...form, content: e.target.value })}
-          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-mono"
-        />
-      </div>
-
-      <div className="flex justify-end gap-3">
-        <button onClick={onCancel} className="px-4 py-2 rounded-xl border border-slate-300 text-xs font-bold">
-          Cancel
-        </button>
-        <button
-          onClick={() => form.title.trim() && form.content.trim() && onSave(form)}
-          className="px-6 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold"
-        >
-          Save & Publish Note
-        </button>
-      </div>
-    </div>
-  );
-}
+            <div className="flex flex
