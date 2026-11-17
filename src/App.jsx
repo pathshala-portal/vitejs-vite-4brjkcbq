@@ -1937,7 +1937,15 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
             <div className="text-base text-slate-900 font-medium whitespace-pre-line leading-relaxed">
              {renderFormattedText(currentQ.text)}
             </div>
-
+{currentQ.imageUrl && (
+              <div className="my-3">
+                <img
+                  src={currentQ.imageUrl}
+                  alt={`Question ${currentIdx + 1} Diagram`}
+                  className="max-h-64 rounded-lg border border-slate-300 bg-white p-2 object-contain shadow-sm"
+                />
+              </div>
+            )}
             <div className="space-y-3 max-w-2xl">
               {currentQ.options.map((opt, idx) => {
                 const isSelected = answers[currentIdx] === idx;
@@ -2380,6 +2388,13 @@ function ExamScorecardScreen({ mock, attempt, allMockAttempts, onBackToDashboard
                   </div>
                 </div>
                 <p className="text-sm font-semibold text-slate-900 whitespace-pre-line">{renderFormattedText(q.text)}</p>
+                {q.imageUrl && (
+  <img
+    src={q.imageUrl}
+    alt={`Question ${idx + 1} Diagram`}
+    className="max-h-52 rounded-lg border border-slate-200 bg-white p-1.5 object-contain"
+  />
+)}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                   {q.options.map((opt, oIdx) => (
                     <div
@@ -2900,6 +2915,7 @@ function MockEditorForm({ mock, onSave, onCancel }) {
         text: q.text || '',
         options: Array.isArray(q.options) && q.options.length === 4 ? q.options : ['', '', '', ''],
         correctIndex: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+        imageUrl: q.imageUrl || '',
         explanation: q.explanation || ''
       }));
 
@@ -3063,6 +3079,48 @@ function MockEditorForm({ mock, onSave, onCancel }) {
               placeholder="Enter question text..."
               className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white"
             />
+            <div className="space-y-2 bg-white p-3 rounded-lg border border-slate-200">
+              <div className="flex flex-wrap items-center gap-2">
+                <input
+                  type="text"
+                  value={q.imageUrl || ''}
+                  onChange={(e) => updateQuestion(qIdx, 'imageUrl', e.target.value)}
+                  placeholder="Optional Diagram Image URL (https://...) or upload below"
+                  className="flex-1 min-w-[200px] px-3 py-1.5 rounded-lg border border-slate-300 text-xs"
+                />
+                <label className="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold cursor-pointer">
+                  Upload Diagram
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = () => updateQuestion(qIdx, 'imageUrl', reader.result);
+                      reader.readAsDataURL(file);
+                    }}
+                  />
+                </label>
+                {q.imageUrl && (
+                  <button
+                    type="button"
+                    onClick={() => updateQuestion(qIdx, 'imageUrl', '')}
+                    className="px-2.5 py-1.5 rounded-lg bg-rose-50 text-rose-600 text-xs font-bold"
+                  >
+                    Remove Image
+                  </button>
+                )}
+              </div>
+              {q.imageUrl && (
+                <img
+                  src={q.imageUrl}
+                  alt="Diagram Preview"
+                  className="max-h-44 rounded-lg border border-slate-200 object-contain bg-slate-50 p-1"
+                />
+              )}
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {q.options.map((opt, oIdx) => (
                 <div key={oIdx} className="flex items-center gap-2">
