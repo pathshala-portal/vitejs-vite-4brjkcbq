@@ -5,7 +5,7 @@ import { getFirestore, collection, doc, setDoc, getDocs, onSnapshot, updateDoc, 
 import {
   BookOpen, CheckCircle2, Clock, Award, Shield, User, Lock, KeyRound,
   LogOut, Plus, Trash2, Edit3, ChevronLeft, AlertCircle, Search, Eye, EyeOff,
-  GraduationCap, ArrowRight, RotateCcw, BarChart3, Users, Printer,
+  GraduationCap, ArrowRight, RotateCcw, RotateCcw, BarChart3, Users, Printer,
   TrendingUp, TrendingDown, Timer, Folder, FolderOpen
 } from 'lucide-react';
 
@@ -810,7 +810,7 @@ function StudentDashboard({
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {filteredMocks.map(mock => {
+         {filteredMocks.map(mock => {
                 const totalCandidates = allAttempts.filter(a => a.mockId === mock.id).length;
                 const subCat = getMockSubCategory(mock);
                 const studentMockAttempts = attempts
@@ -818,10 +818,17 @@ function StudentDashboard({
                   .sort((a, b) => new Date(b.submittedAt || 0) - new Date(a.submittedAt || 0));
                 const hasAttempted = studentMockAttempts.length > 0;
                 const latestAttempt = studentMockAttempts[0];
-                const bestScore = hasAttempted ? Math.max(...studentMockAttempts.map(a => Number(a.score) || 0)) : null;
+                const bestScore = hasAttempted
+                  ? Math.max(...studentMockAttempts.map(a => Number(a.score) || 0))
+                  : null;
 
                 return (
-                  <div key={mock.id} className={`bg-white rounded-2xl border p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between ${hasAttempted ? 'border-emerald-200' : 'border-slate-200'}`}>
+                  <div
+                    key={mock.id}
+                    className={`bg-white rounded-2xl border p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between ${
+                      hasAttempted ? 'border-emerald-200' : 'border-slate-200'
+                    }`}
+                  >
                     <div>
                       <div className="flex items-center justify-between gap-2 mb-3">
                         <div className="flex items-center gap-1.5 flex-wrap">
@@ -829,11 +836,16 @@ function StudentDashboard({
                             mock.category === 'SSC' ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' :
                             mock.category === 'Railway' ? 'bg-sky-50 text-sky-700 border border-sky-200' :
                             'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                          }`}>{mock.category}</span>
-                          <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-amber-50 text-amber-800 border border-amber-200">{subCat}</span>
+                          }`}>
+                            {mock.category}
+                          </span>
+                          <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-amber-50 text-amber-800 border border-amber-200">
+                            {subCat}
+                          </span>
                           {hasAttempted && (
                             <span className="text-[11px] font-extrabold px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
-                              <CheckCircle2 className="w-3 h-3" /> Attempted ({studentMockAttempts.length}×)
+                              <CheckCircle2 className="w-3 h-3" />
+                              Attempted ({studentMockAttempts.length}×)
                             </span>
                           )}
                         </div>
@@ -845,14 +857,25 @@ function StudentDashboard({
                       <h3 className="font-bold text-slate-900 text-base leading-snug mb-3">{mock.title}</h3>
 
                       <div className="grid grid-cols-3 gap-2 bg-slate-50 rounded-xl p-2.5 text-center border border-slate-100 mb-3">
-                        <div><div className="text-xs text-slate-400">Questions</div><div className="font-bold text-sm text-slate-800">{mock.questions?.length || 0}</div></div>
-                        <div className="border-x border-slate-200"><div className="text-xs text-slate-400">Correct</div><div className="font-bold text-sm text-emerald-600">+{mock.positiveMark}</div></div>
-                        <div><div className="text-xs text-slate-400">Negative</div><div className="font-bold text-sm text-rose-600">-{mock.negativeMark}</div></div>
+                        <div>
+                          <div className="text-xs text-slate-400">Questions</div>
+                          <div className="font-bold text-sm text-slate-800">{mock.questions?.length || 0}</div>
+                        </div>
+                        <div className="border-x border-slate-200">
+                          <div className="text-xs text-slate-400">Correct</div>
+                          <div className="font-bold text-sm text-emerald-600">+{mock.positiveMark}</div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-slate-400">Negative</div>
+                          <div className="font-bold text-sm text-rose-600">-{mock.negativeMark}</div>
+                        </div>
                       </div>
 
                       <div className="text-[11px] text-slate-500 mb-4 flex items-center justify-between">
                         {hasAttempted ? (
-                          <span className="text-emerald-700 font-bold">Best Score: {bestScore} / {latestAttempt.maxScore}</span>
+                          <span className="text-emerald-700 font-bold">
+                            Best Score: {bestScore} / {latestAttempt.maxScore}
+                          </span>
                         ) : (
                           <span>{totalCandidates} Attempt{totalCandidates === 1 ? '' : 's'} Recorded</span>
                         )}
@@ -862,25 +885,40 @@ function StudentDashboard({
 
                     <div className="flex items-center gap-2">
                       {hasAttempted && (
-                        <button type="button" onClick={() => onViewAttemptReport(latestAttempt)}
-                          className="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center gap-1.5 shrink-0">
-                          <BarChart3 className="w-3.5 h-3.5 text-indigo-600" /><span>Report</span>
+                        <button
+                          type="button"
+                          onClick={() => onViewAttemptReport(latestAttempt)}
+                          className="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition flex items-center justify-center gap-1.5 shrink-0"
+                        >
+                          <BarChart3 className="w-3.5 h-3.5 text-indigo-600" />
+                          <span>Report</span>
                         </button>
                       )}
-                      <button type="button" onClick={() => onStartMock(mock)}
+                      <button
+                        type="button"
+                        onClick={() => onStartMock(mock)}
                         className={`w-full py-2.5 rounded-xl text-white font-bold text-sm transition flex items-center justify-center gap-2 ${
-                          hasAttempted ? 'bg-amber-600 hover:bg-amber-700' : 'bg-indigo-600 hover:bg-indigo-700'
-                        }`}>
-                        {hasAttempted ? (<><RotateCcw className="w-4 h-4" /><span>Reattempt Mock</span></>) : (<><span>Attempt TCS iON Mock</span><ArrowRight className="w-4 h-4" /></>)}
+                          hasAttempted
+                            ? 'bg-amber-600 hover:bg-amber-700'
+                            : 'bg-indigo-600 hover:bg-indigo-700'
+                        }`}
+                      >
+                        {hasAttempted ? (
+                          <>
+                            <RotateCcw className="w-4 h-4" />
+                            <span>Reattempt Mock</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>Attempt TCS iON Mock</span>
+                            <ArrowRight className="w-4 h-4" />
+                          </>
+                        )}
                       </button>
                     </div>
                   </div>
                 );
               })}
-            </div>
-          )
-        )}
-
         {activeTab === 'notes' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {filteredNotes.map(note => (
