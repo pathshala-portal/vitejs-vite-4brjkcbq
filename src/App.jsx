@@ -895,52 +895,68 @@ function AuthPortal({
                       <option value="WBPSC">WBPSC (Clerkship / Steno / Misc)</option>
                     </select>
                   </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Password (Optional)</label>
-                    <input
-                      type="text"
-                      value={regCustomPass}
-                      onChange={(e) => setRegCustomPass(e.target.value)}
-                      placeholder="Auto-generated if blank"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
-                    />
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full py-3 mt-2 rounded-xl font-bold text-sm text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-600/20 transition"
-                >
-                  Generate Unique ID & Register
-                </button>
-              </form>
-            </>
-          )}
-
-          {authView === 'registered_success' && newlyCreatedAccount && (
-            <div className="text-center">
-              <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-4">
-                <CheckCircle2 className="w-8 h-8" />
+                  <div className="p-3 bg-white border-b border-slate-300 grid grid-cols-2 gap-2 text-[11px]">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-b-lg bg-emerald-600 text-white font-bold flex items-center justify-center shrink-0">
+                  {counts.answered}
+                </span>
+                <span>Answered</span>
               </div>
-              <h3 className="text-xl font-bold text-slate-900">Registration Complete!</h3>
-              <p className="text-xs text-slate-500 mt-1 mb-5">
-                Please save your generated Candidate Login ID and Password below.
-              </p>
-
-              <div className="bg-slate-900 text-white rounded-2xl p-5 text-left space-y-3 mb-5 border border-slate-800">
-                <div>
-                  <div className="text-[11px] uppercase tracking-wider text-slate-400">Candidate Name</div>
-                  <div className="font-semibold text-sm">{newlyCreatedAccount.name}</div>
-                </div>
-                <div className="pt-2 border-t border-slate-800">
-                  <div className="text-[11px] uppercase tracking-wider text-amber-400">Unique Login ID</div>
-                  <div className="font-mono text-lg font-bold tracking-wide text-white">{newlyCreatedAccount.id}</div>
-                </div>
-                <div className="pt-2 border-t border-slate-800">
-                  <div className="text-[11px] uppercase tracking-wider text-emerald-400">Password</div>
-                  <div className="font-mono text-lg font-bold tracking-wide text-white">{newlyCreatedAccount.password}</div>
-                </div>
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-t-lg bg-rose-600 text-white font-bold flex items-center justify-center shrink-0">
+                  {counts.notAnswered}
+                </span>
+                <span>Not Answered</span>
               </div>
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded bg-slate-200 border border-slate-400 text-slate-800 font-bold flex items-center justify-center shrink-0">
+                  {counts.notVisited}
+                </span>
+                <span>Not Visited</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-purple-700 text-white font-bold flex items-center justify-center shrink-0">
+                  {counts.marked}
+                </span>
+                <span>Marked for Review</span>
+              </div>
+              <div className="col-span-2 flex items-center gap-2 pt-1 border-t border-slate-100">
+                <span className="w-6 h-6 rounded-full bg-purple-700 text-white font-bold flex items-center justify-center relative shrink-0">
+                  {counts.answeredMarked}
+                  <span className="w-3 h-3 rounded-full bg-emerald-500 text-white text-[9px] flex items-center justify-center absolute -bottom-0.5 -right-0.5 border border-white">
+                    ✓
+                  </span>
+                </span>
+               <div className="p-3 grid grid-cols-5 gap-2">
+              {questions.map((_, idx) => {
+                const st = statuses[idx];
+                const isCurrent = idx === currentIdx;
+                let badgeStyle = 'bg-slate-200 border border-slate-400 text-slate-800 rounded';
+                if (st === 'answered') badgeStyle = 'bg-emerald-600 text-white rounded-b-xl';
+                if (st === 'not_answered') badgeStyle = 'bg-rose-600 text-white rounded-t-xl';
+                if (st === 'marked' || st === 'answered_marked') badgeStyle = 'bg-purple-700 text-white rounded-full';
+
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => navigateToQuestion(idx)}
+                    className={`h-9 font-bold text-xs flex items-center justify-center relative transition ${badgeStyle} ${
+                      isCurrent ? 'ring-2 ring-offset-1 ring-amber-500' : ''
+                    }`}
+                  >
+                    {idx + 1}
+                    {st === 'answered_marked' && (
+                      <span
+                        title="Answered & Marked for Review"
+                        className="w-3.5 h-3.5 rounded-full bg-emerald-500 text-white text-[9px] font-black flex items-center justify-center absolute -bottom-0.5 -right-0.5 border border-white shadow-sm"
+                      >
+                        ✓
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
 
               <button
                 type="button"
