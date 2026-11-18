@@ -49,12 +49,24 @@ const EXAM_FOLDERS = {
   WBPSC: ['Clerkship', 'Stenographer', 'Miscellaneous']
 };
 
+const SUBJECT_FOLDERS = [
+  'Full Mock',
+  'Quantitative Aptitude',
+  'English Comprehension',
+  'General Intelligence & Reasoning',
+  'General Awareness'
+];
+
 function getMockSubCategory(mock) {
   if (mock.subCategory) return mock.subCategory;
   if (mock.category === 'SSC') return 'CGL';
   if (mock.category === 'Railway') return 'NTPC (G)';
   if (mock.category === 'WBPSC') return 'Clerkship';
   return 'General';
+}
+
+function getMockSubjectFolder(mock) {
+  return mock.subjectFolder || 'Full Mock';
 }
 
 function getDefaultMarking(category, subCategory) {
@@ -1079,28 +1091,33 @@ function StudentDashboard({
   const [activeTab, setActiveTab] = useState('mocks');
   const [streamFilter, setStreamFilter] = useState('ALL');
   const [subFolderFilter, setSubFolderFilter] = useState('ALL');
+  const [subjectFilter, setSubjectFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleSelectStream = (stream) => {
     setStreamFilter(stream);
     setSubFolderFilter('ALL');
+    setSubjectFilter('ALL');
   };
 
   const handleSelectFolderShortcut = (stream, subFolder) => {
     setStreamFilter(stream);
     setSubFolderFilter(subFolder);
+    setSubjectFilter('ALL');
   };
 
   const filteredMocks = mocks.filter(m => {
     const matchesStream = streamFilter === 'ALL' || m.category === streamFilter;
     const sub = getMockSubCategory(m);
     const matchesSub = subFolderFilter === 'ALL' || sub === subFolderFilter;
+    const subj = getMockSubjectFolder(m);
+    const matchesSubject = subjectFilter === 'ALL' || subj === subjectFilter;
     const matchesSearch =
       m.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      sub.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesStream && matchesSub && matchesSearch;
+      sub.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      subj.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesStream && matchesSub && matchesSubject && matchesSearch;
   });
-
   const filteredNotes = notes.filter(n => {
     const matchesStream = streamFilter === 'ALL' || n.category === streamFilter;
     const matchesSearch =
@@ -1272,6 +1289,27 @@ function StudentDashboard({
                 );
               })}
             </div>
+            {subFolderFilter !== 'ALL' && (
+        <div className="rounded-xl border border-indigo-200 bg-indigo-50/50 p-3 flex flex-wrap items-center gap-2">
+          <span className="text-xs font-bold text-indigo-900 mr-1">
+            {streamFilter} → {subFolderFilter} Subjects:
+          </span>
+          {['ALL', ...SUBJECT_FOLDERS].map((subj) => (
+            <button
+              key={subj}
+              type="button"
+              onClick={() => setSubjectFilter(subj)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition ${
+                subjectFilter === subj
+                  ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+              }`}
+            >
+              {subj === 'ALL' ? 'All Subjects' : subj}
+            </button>
+          ))}
+        </div>
+      )}
 
             {streamFilter !== 'ALL' && (
               <div className="flex flex-wrap items-center gap-2 bg-white px-4 py-2.5 rounded-xl border border-slate-200 text-xs">
@@ -2650,6 +2688,58 @@ function AdminDashboard({
                     </div>
                     <h4 className="font-bold text-slate-900 mt-1.5">{m.title}</h4>
                     <p className="text-xs text-slate-500 mt-1">{m.questions?.length || 0} Questions • {m.durationMinutes} mins</p>
+                    <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                        <span className="text-[11px] font-bold text-slate-500">Move to:</span>
+                        <select
+                          value={m.category}
+                          onChange={(e) => {
+                            const newCat = e.target.value;
+                            const newSub = (EXAM_FOLDERS[newCat] || ['General'])[0];
+                            const marks = getDefaultMarking(newCat, newSub);
+                            onSaveMock({
+                              ...m,
+                              category: newCat,
+                              subCategory: newSub,
+                              positiveMark: marks.positiveMark,
+                              negativeMark: marks.negativeMark
+                            });
+                          }}
+                          className="px-2 py-1 rounded-lg border border-slate-300 text-xs bg-white font-semibold"
+                        >
+                          {Object.keys(EXAM_FOLDERS).map(cat => (
+                            <option key={cat} value={cat}>{cat}</option>
+                          ))}
+                        </select>
+
+                        <select
+                          value={getMockSubCategory(m)}
+                          onChange={(e) => {
+                            const newSub = e.target.value;
+                            const marks = getDefaultMarking(m.category, newSub);
+                            onSaveMock({
+                              ...m,
+                              subCategory: newSub,
+                              positiveMark: marks.positiveMark,
+                              negativeMark: marks.negativeMark
+                            });
+                          }}
+                          className="px-2 py-1 rounded-lg border border-slate-300 text-xs bg-white font-semibold"
+                        >
+                          {(EXAM_FOLDERS[m.category] || ['General']).map(sub => (
+                            <option key={sub} value={sub}>{sub}</option>
+                          ))}
+                        </select>
+
+                        <select
+                          value={getMockSubjectFolder(m)}
+                          onChange={(e) => onSaveMock({ ...m, subjectFolder: e.target.value })}
+                          className="px-2 py-1 rounded-lg border border-slate-300 text-xs bg-white font-semibold"
+                        >
+                          {SUBJECT_FOLDERS.map(subj => (
+                            <option key={subj} value={subj}>{subj}</option>
+                          ))}
+                        </select>
+                      </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
@@ -2853,7 +2943,8 @@ function AdminDashboard({
 function MockEditorForm({ mock, onSave, onCancel }) {
   const [form, setForm] = useState({
     ...mock,
-    subCategory: getMockSubCategory(mock)
+    subCategory: getMockSubCategory(mock),
+    subjectFolder: getMockSubjectFolder(mock)
   });
   const [showBulkBox, setShowBulkBox] = useState(false);
   const [bulkJsonText, setBulkJsonText] = useState('');
@@ -2998,6 +3089,18 @@ function MockEditorForm({ mock, onSave, onCancel }) {
           >
             {subFolderOptions.map(sub => (
               <option key={sub} value={sub}>{sub}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-slate-700 mb-1">Subject Folder</label>
+          <select
+            value={form.subjectFolder || 'Full Mock'}
+            onChange={(e) => setForm({ ...form, subjectFolder: e.target.value })}
+            className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm bg-white"
+          >
+            {SUBJECT_FOLDERS.map(subj => (
+              <option key={subj} value={subj}>{subj}</option>
             ))}
           </select>
         </div>
