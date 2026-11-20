@@ -2994,7 +2994,7 @@ function MockEditorForm({ mock, onSave, onCancel }) {
         ...form.questions,
         {
           id: `q-${Date.now()}`,
-          section: 'General Awareness',
+         section: form.subjectFolder && form.subjectFolder !== 'Full Mock' ? form.subjectFolder : 'General Awareness',
           text: '',
           options: ['', '', '', ''],
           correctIndex: 0,
@@ -3022,7 +3022,7 @@ function MockEditorForm({ mock, onSave, onCancel }) {
       }
       const normalized = parsed.map((q, i) => ({
         id: q.id || `q-${Date.now()}-${i}`,
-        section: q.section || 'General Awareness',
+       section: q.section || (form.subjectFolder && form.subjectFolder !== 'Full Mock' ? form.subjectFolder : 'General Awareness'),
         text: q.text || '',
         options: Array.isArray(q.options) && q.options.length === 4 ? q.options : ['', '', '', ''],
         correctIndex: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
@@ -3063,7 +3063,16 @@ function MockEditorForm({ mock, onSave, onCancel }) {
           <input
             type="text"
             value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
+           onChange={(e) => {
+  const newSubj = e.target.value;
+  setForm({
+    ...form,
+    subjectFolder: newSubj,
+    questions: newSubj !== 'Full Mock'
+      ? (form.questions || []).map(q => ({ ...q, section: newSubj }))
+      : form.questions
+  });
+}}
             placeholder="e.g. SSC CGL Tier-1 2026 (30 Sep Shift-3)"
             className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"
           />
