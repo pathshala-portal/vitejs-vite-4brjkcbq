@@ -176,23 +176,62 @@ function formatDurationHuman(seconds) {
   return `${mins}m ${secs}s`;
 }
 
+function renderMathTokens(str, keyPrefix) {
+  const tokens = String(str).split(/(<sup>.*?<\/sup>|<sub>.*?<\/sub>|\[\[[^|\]]+\|[^\]]+\]\]|\(\d+\/\d+\)|\^\([^)]+\)|\^[a-zA-Z0-9+-]+)/gi);
+  return tokens.map((tok, i) => {
+    const k = `${keyPrefix}-${i}`;
+    if (/^<sup>.*<\/sup>$/i.test(tok)) {
+      return <sup key={k}>{tok.replace(/<\/?sup>/gi, '')}</sup>;
+    }
+    if (/^<sub>.*<\/sub>$/i.test(tok)) {
+      return <sub key={k}>{tok.replace(/<\/?sub>/gi, '')}</sub>;
+    }
+    const bracketFrac = tok.match(/^\[\[([^|\]]+)\|([^\]]+)\]\]$/);
+    if (bracketFrac) {
+      return (
+        <span key={k} className="inline-flex flex-col items-center align-middle mx-0.5 leading-none text-[0.85em]">
+          <span className="border-b border-current px-1 pb-0.5">{bracketFrac[1]}</span>
+          <span className="pt-0.5">{bracketFrac[2]}</span>
+        </span>
+      );
+    }
+    const parenFrac = tok.match(/^\((\d+)\/(\d+)\)$/);
+    if (parenFrac) {
+      return (
+        <span key={k} className="inline-flex flex-col items-center align-middle mx-0.5 leading-none text-[0.85em]">
+          <span className="border-b border-current px-1 pb-0.5">{parenFrac[1]}</span>
+          <span className="pt-0.5">{parenFrac[2]}</span>
+        </span>
+      );
+    }
+    if (/^\^\([^)]+\)$/.test(tok)) {
+      return <sup key={k}>{tok.slice(2, -1)}</sup>;
+    }
+    if (/^\^[a-zA-Z0-9+-]+$/.test(tok)) {
+      return <sup key={k}>{tok.slice(1)}</sup>;
+    }
+    return <React.Fragment key={k}>{tok}</React.Fragment>;
+  });
+}
+
 function renderFormattedText(rawText) {
   if (!rawText) return null;
-  const parts = String(rawText).split(/(<b>.*?<\/b>|\*\*.*?\*\*|<u>.*?<\/u>|<mark>.*?<\/mark>)/gi);
+  const cleaned = String(rawText).replace(/<br\s*\/?>/gi, '\n');
+  const parts = cleaned.split(/(<b>.*?<\/b>|\*\*.*?\*\*|<u>.*?<\/u>|<mark>.*?<\/mark>)/gi);
   return parts.map((part, idx) => {
     if (/^<b>.*<\/b>$/i.test(part)) {
-      return <strong key={idx} className="font-extrabold text-slate-950">{part.replace(/<\/?b>/gi, '')}</strong>;
+      return <strong key={idx} className="font-extrabold text-slate-950">{renderMathTokens(part.replace(/<\/?b>/gi, ''), idx)}</strong>;
     }
     if (/^\*\*.*\*\*$/.test(part)) {
-      return <strong key={idx} className="font-extrabold text-slate-950">{part.slice(2, -2)}</strong>;
+      return <strong key={idx} className="font-extrabold text-slate-950">{renderMathTokens(part.slice(2, -2), idx)}</strong>;
     }
     if (/^<u>.*<\/u>$/i.test(part)) {
-      return <u key={idx} className="decoration-2 decoration-indigo-600 underline-offset-4 font-semibold">{part.replace(/<\/?u>/gi, '')}</u>;
+      return <u key={idx} className="decoration-2 decoration-indigo-600 underline-offset-4 font-semibold">{renderMathTokens(part.replace(/<\/?u>/gi, ''), idx)}</u>;
     }
     if (/^<mark>.*<\/mark>$/i.test(part)) {
-      return <mark key={idx} className="bg-amber-200/80 text-slate-900 px-1 rounded font-semibold">{part.replace(/<\/?mark>/gi, '')}</mark>;
+      return <mark key={idx} className="bg-amber-200/80 text-slate-900 px-1 rounded font-semibold">{renderMathTokens(part.replace(/<\/?mark>/gi, ''), idx)}</mark>;
     }
-    return <React.Fragment key={idx}>{part}</React.Fragment>;
+    return <React.Fragment key={idx}>{renderMathTokens(part, idx)}</React.Fragment>;
   });
 }
 // ============================================================================
@@ -2994,7 +3033,7 @@ function MockEditorForm({ mock, onSave, onCancel }) {
         ...form.questions,
         {
           id: `q-${Date.now()}`,
-         section: form.subjectFolder && form.subjectFolder !== 'Full Mock' ? form.subjectFolder : 'General Awareness',
+       section: (form.title && form.title.trim()) || (form.subjectFolder && form.subjectFolder !== 'Full Mock' ? form.subjectFolder : 'General Awareness'),
           text: '',
           options: ['', '', '', ''],
           correctIndex: 0,
@@ -3022,11 +3061,11 @@ function MockEditorForm({ mock, onSave, onCancel }) {
       }
       const normalized = parsed.map((q, i) => ({
         id: q.id || `q-${Date.now()}-${i}`,
-       section: q.section || (form.subjectFolder && form.subjectFolder !== 'Full Mock' ? form.subjectFolder : 'General Awareness'),
+      section: (form.title && form.title.trim()) || q.section || (form.subjectFolder && form.subjectFolder !== 'Full Mock' ? form.subjectFolder : 'General Awareness'),
         text: q.text || '',
         options: Array.isArray(q.options) && q.options.length === 4 ? q.options : ['', '', '', ''],
         correctIndex: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
-        imageUrl: q.imageUrl || '',
+       imageUrl: q.imageUrl || q.image || '',
         explanation: q.explanation || ''
       }));
 
@@ -3060,21 +3099,23 @@ function MockEditorForm({ mock, onSave, onCancel }) {
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <div className="md:col-span-2">
           <label className="block text-xs font-bold text-slate-700 mb-1">Mock Title *</label>
-          <input
+        <input
             type="text"
-            value={form.title}
-           onChange={(e) => {
-  const newSubj = e.target.value;
-  setForm({
-    ...form,
-    subjectFolder: newSubj,
-    questions: newSubj !== 'Full Mock'
-      ? (form.questions || []).map(q => ({ ...q, section: newSubj }))
-      : form.questions
-  });
-}}
-            placeholder="e.g. SSC CGL Tier-1 2026 (30 Sep Shift-3)"
+            value={form.title || ''}
+            onChange={(e) => {
+              const newTitle = e.target.value;
+              setForm({
+                ...form,
+                title: newTitle,
+                questions: (form.questions || []).map(q => ({
+                  ...q,
+                  section: newTitle.trim() || q.section || 'General Awareness'
+                }))
+              });
+            }}
+            placeholder="e.g. Reasoning Set 1 or English Mock"
             className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"
+          />
           />
         </div>
         <div>
