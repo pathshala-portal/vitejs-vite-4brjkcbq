@@ -195,7 +195,6 @@ function renderMathTokens(str, keyPrefix) {
         </span>
       );
     }
-     }
     const parenFrac = tok.match(/^\((\d+)\/(\d+)\)$/);
     if (parenFrac) {
       return (
