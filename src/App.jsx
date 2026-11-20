@@ -3103,16 +3103,16 @@ function MockEditorForm({ mock, onSave, onCancel }) {
             type="text"
             value={form.title || ''}
             onChange={(e) => {
-              const newTitle = e.target.value;
-              setForm({
-                ...form,
-                title: newTitle,
-                questions: (form.questions || []).map(q => ({
-                  ...q,
-                  section: newTitle.trim() || q.section || 'General Awareness'
-                }))
-              });
-            }}
+          const newTitle = e.target.value;
+          setForm((prev) => ({
+            ...prev,
+            title: newTitle,
+            questions: (prev.questions || []).map((q) => ({
+              ...q,
+              section: newTitle.trim() || q.section || 'General Awareness',
+            })),
+          }));
+        }}
             placeholder="e.g. Reasoning Set 1 or English Mock"
             className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"
           />
