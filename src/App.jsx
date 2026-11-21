@@ -176,6 +176,79 @@ function formatDurationHuman(seconds) {
   return `${mins}m ${secs}s`;
 }
 
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+const TRIAL_DAYS = 7;
+const ONE_YEAR_DAYS = 365;
+const ADMIN_WHATSAPP_NUMBER = '6290671995';
+
+function getWhatsAppPaymentUrl(candidate) {
+  const name = candidate?.name || 'Candidate';
+  const id = candidate?.id || candidate?.studentId || 'N/A';
+  const text = encodeURIComponent(
+    `Hello Admin, I am ${name} (ID: ${id}) on PATHSHALA. I would like to complete payment for 1-Year Membership.`
+  );
+  return `https://wa.me/91${ADMIN_WHATSAPP_NUMBER}?text=${text}`;
+}
+
+function getCandidateMembership(user) {
+  const now = Date.now();
+  const createdMs = user?.createdAt ? new Date(user.createdAt).getTime() : now;
+
+  const has1YrGrant =
+    user?.membershipStatus === 'active_1yr' || Boolean(user?.membershipExpiresAt);
+
+  if (has1YrGrant && user?.membershipExpiresAt) {
+    const expiresMs = new Date(user.membershipExpiresAt).getTime();
+    const daysRemaining = Math.max(0, Math.ceil((expiresMs - now) / ONE_DAY_MS));
+    const isActive = daysRemaining > 0;
+
+    return {
+      planType: '1_year',
+      hasAccess: isActive,
+      isExpired: !isActive,
+      daysRemaining,
+      statusBadge: isActive ? '1-Year Membership' : 'Membership Expired',
+      paymentBadge: isActive ? 'Paid (1 Year)' : 'Payment Pending',
+      showTrialPendingNotice: !isActive,
+      remainingText: isActive
+        ? `${daysRemaining} ${daysRemaining === 1 ? 'day' : 'days'} remaining`
+        : '0 days remaining',
+    };
+  }
+
+  const trialExpiresMs = user?.trialExpiresAt
+    ? new Date(user.trialExpiresAt).getTime()
+    : createdMs + TRIAL_DAYS * ONE_DAY_MS;
+
+  const daysRemaining = Math.max(0, Math.ceil((trialExpiresMs - now) / ONE_DAY_MS));
+  const isTrialActive = daysRemaining > 0;
+
+  return {
+    planType: 'trial',
+    hasAccess: isTrialActive,
+    isExpired: !isTrialActive,
+    daysRemaining,
+    statusBadge: isTrialActive ? '7-Day Trial Active' : 'Trial Ended',
+    paymentBadge: 'Payment Pending',
+    showTrialPendingNotice: true,
+    remainingText: isTrialActive
+      ? `${daysRemaining} ${daysRemaining === 1 ? 'day' : 'days'} left in trial`
+      : '0 days remaining',
+  };
+}
+
+function createNewCandidateRecord(baseStudent) {
+  const now = Date.now();
+  return {
+    ...baseStudent,
+    createdAt: new Date(now).toISOString(),
+    trialExpiresAt: new Date(now + TRIAL_DAYS * ONE_DAY_MS).toISOString(),
+    membershipStatus: 'trial',
+    paymentStatus: 'pending',
+    membershipApprovedAt: null,
+    membershipExpiresAt: null,
+  };
+}
 function renderMathTokens(str, keyPrefix) {
   const tokens = String(str).split(/(<sup>.*?<\/sup>|<sub>.*?<\/sub>|\[\[[^|\]]+\|[^\]]+\]\]|\(\d+\/\d+\)|\^\([^)]+\)|\^[a-zA-Z0-9+-]+)/gi);
   return tokens.map((tok, i) => {
@@ -346,6 +419,40 @@ export default function App() {
     return { success: true };
   };
 
+  const handleApproveOneYearMembership = async (student) => {
+    if (!student?.id) return;
+    const now = Date.now();
+    const currentExpiryMs = student.membershipExpiresAt
+      ? new Date(student.membershipExpiresAt).getTime()
+      : 0;
+    const baseStartMs = currentExpiryMs > now ? currentExpiryMs : now;
+
+    const updatedStudent = {
+      ...student,
+      membershipStatus: 'active_1yr',
+      paymentStatus: 'paid',
+      membershipApprovedAt: new Date(now).toISOString(),
+      membershipExpiresAt: new Date(
+        baseStartMs + ONE_YEAR_DAYS * ONE_DAY_MS
+      ).toISOString(),
+    };
+
+    setUsers((prev) =>
+      prev.map((u) => (u.id === student.id ? updatedStudent : u))
+    );
+
+    try {
+      if (fbUser) {
+        await setDoc(
+          doc(db, 'artifacts', appId, 'public', 'data', 'users', student.id),
+          updatedStudent,
+          { merge: true }
+        );
+      }
+    } catch (err) {
+      console.error('Error approving 1-year membership:', err);
+    }
+  };
   const handleRegisterStudent = async ({ name, email, phone, targetExam, customPassword }) => {
     const trimmedEmail = email.trim().toLowerCase();
     const existingEmail = users.find(u => u.email.toLowerCase() === trimmedEmail);
@@ -359,7 +466,7 @@ export default function App() {
     }
 
     const generatedPassword = customPassword?.trim() || `PS@${Math.floor(1000 + Math.random() * 9000)}`;
-    const newStudent = {
+    const newStudent = createNewCandidateRecord({
       id: uniqueId,
       password: generatedPassword,
       role: 'student',
@@ -367,8 +474,7 @@ export default function App() {
       email: trimmedEmail,
       phone: phone.trim(),
       targetExam: targetExam || 'SSC',
-      createdAt: new Date().toISOString()
-    };
+    });
 
     try {
       if (fbUser) {
@@ -607,11 +713,27 @@ export default function App() {
           attempts={attempts.filter(a => a.studentId === currentUser.id)}
           allAttempts={attempts}
           onStartMock={(mock) => {
+            const mem = getCandidateMembership(currentUser);
+            if (!mem.hasAccess) {
+              showToast(
+                `Trial ended. Contact admin on WhatsApp only at ${ADMIN_WHATSAPP_NUMBER} for 1-year membership.`
+              );
+              return;
+            }
             setActiveMock(mock);
             setExamPhase('instructions');
           }}
           onViewAttemptReport={handleOpenSavedScorecard}
-          onOpenNote={(note) => setReadingNote(note)}
+          onOpenNote={(note) => {
+            const mem = getCandidateMembership(currentUser);
+            if (!mem.hasAccess) {
+              showToast(
+                `Trial ended. Contact admin on WhatsApp only at ${ADMIN_WHATSAPP_NUMBER} for 1-year membership.`
+              );
+              return;
+            }
+            setReadingNote(note);
+          }}
           onChangePassword={handleChangePassword}
           onLogout={handleLogout}
         />
@@ -631,6 +753,7 @@ export default function App() {
           onPreviewNote={(note) => setReadingNote(note)}
           onChangePassword={handleChangePassword}
           onLogout={handleLogout}
+          onApproveMembership={handleApproveOneYearMembership}
         />
       )}
     </div>
@@ -1127,6 +1250,7 @@ function AuthPortal({
 function StudentDashboard({
   student, mocks, notes, attempts, allAttempts, onStartMock, onViewAttemptReport, onOpenNote, onChangePassword, onLogout
 }) {
+  const membership = getCandidateMembership(student);
   const [activeTab, setActiveTab] = useState('mocks');
   const [streamFilter, setStreamFilter] = useState('ALL');
   const [subFolderFilter, setSubFolderFilter] = useState('ALL');
@@ -1232,7 +1356,70 @@ function StudentDashboard({
             })}
           </div>
 
-          {(activeTab === 'mocks' || activeTab === 'notes') && (
+          <div className="mb-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-2.5">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-indigo-100 px-2.5 py-1 font-bold text-indigo-800">
+              {membership.statusBadge}
+            </span>
+            <span
+              className={`rounded-full px-2.5 py-1 font-bold ${
+                membership.paymentBadge.startsWith('Paid')
+                  ? 'bg-emerald-100 text-emerald-800'
+                  : 'bg-amber-100 text-amber-900'
+              }`}
+            >
+              {membership.paymentBadge}
+            </span>
+          </div>
+
+          <div className="font-bold text-slate-900">
+            {membership.remainingText}
+          </div>
+        </div>
+
+        {membership.showTrialPendingNotice && (
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3.5 py-2.5 text-xs text-amber-950">
+            <span>
+              <strong>Payment Pending:</strong> For payment and 1-year membership, contact admin on{' '}
+              <strong>WhatsApp only</strong> at <strong>{ADMIN_WHATSAPP_NUMBER}</strong>.
+            </span>
+            <a
+              href={getWhatsAppPaymentUrl(student)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg bg-emerald-600 px-3 py-1.5 font-bold text-white hover:bg-emerald-700"
+            >
+              WhatsApp Admin
+            </a>
+          </div>
+        )}
+      </div>
+
+      {!membership.hasAccess && (activeTab === 'mocks' || activeTab === 'notes') && (
+        <div className="mb-6 rounded-2xl border border-rose-200 bg-rose-50 p-6 text-center space-y-3">
+          <div className="inline-block rounded-full bg-rose-100 px-3 py-1 text-xs font-bold text-rose-800">
+            Access Locked • {membership.paymentBadge}
+          </div>
+          <h3 className="text-lg font-bold text-slate-900">
+            7-Day Trial Ended
+          </h3>
+          <p className="text-sm text-slate-700 max-w-md mx-auto">
+            You cannot access mocks or study materials until the admin approves your 1-year
+            membership. For payment, contact admin on <strong>WhatsApp only</strong> at{' '}
+            <strong>{ADMIN_WHATSAPP_NUMBER}</strong>.
+          </p>
+          <a
+            href={getWhatsAppPaymentUrl(student)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700"
+          >
+            Message Admin on WhatsApp ({ADMIN_WHATSAPP_NUMBER})
+          </a>
+        </div>
+      )}
+         {membership.hasAccess && (activeTab === 'mocks' || activeTab === 'notes') && (
             <div className="flex flex-wrap items-center gap-2">
               {['ALL', 'SSC', 'Railway', 'WBPSC'].map(stream => (
                 <button
@@ -2556,7 +2743,7 @@ function StudyNoteReader({ note, onClose }) {
 // ============================================================================
 function AdminDashboard({
   admin, users, mocks, notes, attempts,
-  onSaveMock, onDeleteMock, onSaveNote, onDeleteNote, onPreviewNote, onChangePassword, onLogout
+ onSaveMock, onDeleteMock, onSaveNote, onDeleteNote, onPreviewNote, onChangePassword, onLogout, onApproveMembership
 }) {
   const [tab, setTab] = useState('mocks');
   const [editingMock, setEditingMock] = useState(null);
@@ -2948,18 +3135,59 @@ function AdminDashboard({
                     <th className="px-5 py-3">Email</th>
                     <th className="px-5 py-3">Mobile</th>
                     <th className="px-5 py-3">Stream</th>
+                    <th className="px-5 py-3">Membership &amp; Payment</th>
+                      <th className="px-5 py-3">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {students.map(s => (
-                    <tr key={s.id} className="hover:bg-slate-50">
-                      <td className="px-5 py-3.5 font-mono font-bold text-indigo-600">{s.id}</td>
-                      <td className="px-5 py-3.5 font-semibold text-slate-900">{s.name}</td>
-                      <td className="px-5 py-3.5 text-slate-600">{s.email}</td>
-                      <td className="px-5 py-3.5 text-slate-600">{s.phone}</td>
-                      <td className="px-5 py-3.5 font-bold">{s.targetExam}</td>
-                    </tr>
-                  ))}
+                 {students.map(s => {
+                      const info = getCandidateMembership(s);
+                      return (
+                        <tr key={s.id} className="hover:bg-slate-50">
+                          <td className="px-5 py-3.5 font-mono font-bold text-indigo-600">{s.id}</td>
+                          <td className="px-5 py-3.5 font-semibold text-slate-900">{s.name}</td>
+                          <td className="px-5 py-3.5 text-slate-600">{s.email}</td>
+                          <td className="px-5 py-3.5 text-slate-600">{s.phone}</td>
+                          <td className="px-5 py-3.5 font-bold">{s.targetExam}</td>
+                          <td className="px-5 py-3.5">
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <span
+                                className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                                  info.hasAccess
+                                    ? 'bg-emerald-100 text-emerald-800'
+                                    : 'bg-rose-100 text-rose-800'
+                                }`}
+                              >
+                                {info.statusBadge}
+                              </span>
+                              <span
+                                className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                                  info.paymentBadge.startsWith('Paid')
+                                    ? 'bg-blue-100 text-blue-800'
+                                    : 'bg-amber-100 text-amber-800'
+                                }`}
+                              >
+                                {info.paymentBadge}
+                              </span>
+                            </div>
+                            <div className="mt-1 text-xs font-medium text-slate-600">
+                              {info.remainingText}
+                            </div>
+                          </td>
+                          <td className="px-5 py-3.5">
+                            <button
+                              type="button"
+                              onClick={() => onApproveMembership && onApproveMembership(s)}
+                              className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700"
+                            >
+                              {info.planType === '1_year' && info.hasAccess
+                                ? 'Extend +1 Year'
+                                : 'Approve 1-Year Membership'}
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
                 </tbody>
               </table>
             </div>
