@@ -22,7 +22,21 @@ import {
   GraduationCap, ArrowRight, RotateCcw,
   BarChart3, Users, Printer, TrendingUp, TrendingDown, Timer, Folder, FolderOpen
 } from 'lucide-react';
-
+function formatAttemptDate(attempt) {
+  const raw =
+    attempt?.submittedAt ||
+    attempt?.createdAt ||
+    attempt?.date ||
+    attempt?.timestamp;
+  if (!raw) return 'Earlier Attempt';
+  const d = typeof raw?.toDate === 'function' ? raw.toDate() : new Date(raw);
+  if (Number.isNaN(d.getTime())) return String(raw);
+  return d.toLocaleDateString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+}
 // ============================================================================
 // FIREBASE CONFIGURATION
 // ============================================================================
@@ -611,22 +625,7 @@ export default function App() {
     }
   };
 
-  function formatAttemptDate(attempt) {
-  const raw =
-    attempt?.submittedAt ||
-    attempt?.createdAt ||
-    attempt?.date ||
-    attempt?.timestamp;
-  if (!raw) return 'Earlier Attempt';
-  const d = new Date(raw);
-  if (Number.isNaN(d.getTime())) return String(raw);
-  return d.toLocaleDateString('en-IN', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
-}
-  const submitExamAttempt = async (attemptRecord) => {
+   const submitExamAttempt = async (attemptRecord) => {
     const enrichedAttempt = {
     ...attemptRecord,
     submittedAt: attemptRecord?.submittedAt || new Date().toISOString(),
