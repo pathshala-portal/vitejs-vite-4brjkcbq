@@ -1309,7 +1309,7 @@ function StudentDashboard({
   });
 
   const getRankForAttempt = (att) => {
-    const peers = allAttempts
+    const peers = (Array.isArray(allAttempts) ? allAttempts : [])
       .filter(a => a.mockId === att.mockId)
       .sort((a, b) => (b.score - a.score) || (b.accuracy - a.accuracy) || ((a.totalTimeSeconds || 99999) - (b.totalTimeSeconds || 99999)));
     const idx = peers.findIndex(p => p.id === att.id);
