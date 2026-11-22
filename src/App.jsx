@@ -611,20 +611,39 @@ export default function App() {
     }
   };
 
+  function formatAttemptDate(attempt) {
+  const raw =
+    attempt?.submittedAt ||
+    attempt?.createdAt ||
+    attempt?.date ||
+    attempt?.timestamp;
+  if (!raw) return 'Earlier Attempt';
+  const d = new Date(raw);
+  if (Number.isNaN(d.getTime())) return String(raw);
+  return d.toLocaleDateString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+}
   const submitExamAttempt = async (attemptRecord) => {
+    const enrichedAttempt = {
+    ...attemptRecord,
+    submittedAt: attemptRecord?.submittedAt || new Date().toISOString(),
+  };
     try {
       if (fbUser) {
-        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'attempts', attemptRecord.id), attemptRecord);
+        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'attempts', attemptRecord.id), enrichedAttempt);
       } else {
-        setAttempts(prev => [attemptRecord, ...prev]);
+        setAttempts(prev => [enrichedAttempt, ...prev]);
       }
-      setLastAttemptResult(attemptRecord);
+      setLastAttemptResult(enrichedAttempt);
       setExamPhase('result');
       if (attemptRecord.autoSubmitted) {
         showToast('Time expired! Exam auto-submitted & evaluated.');
       }
     } catch (err) {
-      setLastAttemptResult(attemptRecord);
+      setLastAttemptResult(enrichedAttempt);
       setExamPhase('result');
     }
   };
@@ -1746,6 +1765,7 @@ function StudentDashboard({
                   <thead className="bg-slate-50 text-slate-600 text-xs uppercase">
                     <tr>
                       <th className="px-5 py-3">Mock Test</th>
+                      <th className="px-5 py-3">Date</th>
                       <th className="px-5 py-3">Live Rank</th>
                       <th className="px-5 py-3">Score</th>
                       <th className="px-5 py-3">Accuracy</th>
@@ -1757,6 +1777,7 @@ function StudentDashboard({
                     {attempts.map(att => (
                       <tr key={att.id} className="hover:bg-slate-50">
                         <td className="px-5 py-3.5 font-semibold text-slate-900">{att.mockTitle}</td>
+                        <td className="px-5 py-3.5 text-xs font-medium text-slate-600">{formatAttemptDate(att)}</td>
                         <td className="px-5 py-3.5 font-bold text-amber-600">{getRankForAttempt(att)}</td>
                         <td className="px-5 py-3.5 font-bold text-indigo-600">{att.score} / {att.maxScore}</td>
                         <td className="px-5 py-3.5">{att.accuracy}%</td>
@@ -2203,8 +2224,8 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-6 space-y-5">
-            <div className="text-base text-slate-900 font-medium whitespace-pre-line leading-relaxed">
+          <div className="flex-1 overflow-y-auto p-6 space-y-5 text-left">
+            <div className="text-base text-slate-900 font-medium whitespace-pre-line leading-relaxed text-left">
              {renderFormattedText(currentQ.text)}
             </div>
 {currentQ.imageUrl && (
@@ -2607,6 +2628,7 @@ function ExamScorecardScreen({ mock, attempt, allMockAttempts, onBackToDashboard
                 <tr>
                   <th className="px-4 py-3">Rank</th>
                   <th className="px-4 py-3">Candidate</th>
+                  <th className="px-4 py-3">Date</th>
                   <th className="px-4 py-3">Net Score</th>
                   <th className="px-4 py-3">Accuracy</th>
                   <th className="px-4 py-3">Time Taken</th>
@@ -2622,6 +2644,7 @@ function ExamScorecardScreen({ mock, attempt, allMockAttempts, onBackToDashboard
                         {row.studentName} <span className="font-mono text-slate-400">({row.studentId})</span>
                         {isMe && <span className="ml-2 px-2 py-0.5 rounded bg-indigo-600 text-white text-[10px]">YOU</span>}
                       </td>
+                      <td className="px-4 py-3 text-xs font-medium text-slate-600">{formatAttemptDate(row)}</td>
                       <td className="px-4 py-3 font-bold text-indigo-700">{row.score} / {row.maxScore}</td>
                       <td className="px-4 py-3">{row.accuracy}%</td>
                       <td className="px-4 py-3 text-slate-600">{formatDurationHuman(row.totalTimeSeconds)}</td>
@@ -3029,6 +3052,7 @@ function AdminDashboard({
                       <th className="px-4 py-3">Rank</th>
                       <th className="px-4 py-3">Candidate</th>
                       <th className="px-4 py-3">Mock Test</th>
+                      <th className="px-4 py-3">Date</th>
                       <th className="px-4 py-3">Attempted</th>
                       <th className="px-4 py-3">Correct</th>
                       <th className="px-4 py-3">Wrong</th>
@@ -3049,6 +3073,7 @@ function AdminDashboard({
                             <div className="font-mono text-[11px] text-slate-500">{att.studentId}</div>
                           </td>
                           <td className="px-4 py-3.5 font-medium text-slate-700">{att.mockTitle}</td>
+                          <td className="px-4 py-3.5 text-xs font-medium text-slate-600">{formatAttemptDate(att)}</td>
                           <td className="px-4 py-3.5 font-semibold">{attemptedCount} / {totalQs}</td>
                           <td className="px-4 py-3.5 font-bold text-emerald-600">{att.correct}</td>
                           <td className="px-4 py-3.5 font-bold text-rose-600">{att.wrong}</td>
