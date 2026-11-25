@@ -2844,7 +2844,6 @@ const filteredAttempts = useMemo(() => {
       return (b.score - a.score) || (b.accuracy - a.accuracy) || ((a.totalTimeSeconds || 99999) - (b.totalTimeSeconds || 99999));
     });
   }, [attempts, selectedMockFilter, resultsSortBy]);
-  }, [attempts, selectedMockFilter]);
 
   const adminFilteredMocks = useMemo(() => {
     if (adminFolderFilter === 'ALL') return mocks;
