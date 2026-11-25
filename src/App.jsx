@@ -1982,6 +1982,42 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
   const sections = useMemo(() => [...new Set(questions.map(q => q.section))], [questions]);
   const totalExamSeconds = (mock.durationMinutes || 60) * 60;
 
+  const isSscFullMock =
+    mock.category === 'SSC' && mock.subjectFolder === 'Full Mock';
+
+  const getSscSectionSeconds = (secName) => {
+    const mins = Number(mock.sectionTimers?.[secName]);
+    return (Number.isFinite(mins) && mins > 0 ? mins : 15) * 60;
+  };
+
+  const [activeSectionIdx, setActiveSectionIdx] = useState(0);
+  const activeSectionIdxRef = useRef(0);
+  activeSectionIdxRef.current = activeSectionIdx;
+
+  const activeSectionName = sections[activeSectionIdx] || '';
+
+  const visibleQuestionIndices = useMemo(() => {
+    if (!isSscFullMock || !activeSectionName) {
+      return questions.map((_, idx) => idx);
+    }
+    return questions
+      .map((q, idx) => ({ q, idx }))
+      .filter(({ q }) => (q.section || '').trim() === activeSectionName.trim())
+      .slice(0, 25)
+      .map(({ idx }) => idx);
+  }, [isSscFullMock, activeSectionName, questions]);
+  useEffect(() => {
+    if (!isSscFullMock || visibleQuestionIndices.length === 0) return;
+    if (!visibleQuestionIndices.includes(currentIdx)) {
+      const firstIdx = visibleQuestionIndices[0];
+      setCurrentIdx(firstIdx);
+      setStatuses((prev) => ({
+        ...prev,
+        [firstIdx]: prev[firstIdx] === 'not_visited' ? 'not_answered' : prev[firstIdx],
+      }));
+    }
+  }, [isSscFullMock, activeSectionIdx, visibleQuestionIndices, currentIdx]);
+
   const [currentIdx, setCurrentIdx] = useState(0);
   const [answers, setAnswers] = useState({});
   const [statuses, setStatuses] = useState(() => {
@@ -1989,7 +2025,7 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
     questions.forEach((_, idx) => { init[idx] = idx === 0 ? 'not_answered' : 'not_visited'; });
     return init;
   });
-  const [secondsLeft, setSecondsLeft] = useState(totalExamSeconds);
+  const [secondsLeft, setSecondsLeft] = useState(() => (isSscFullMock && sections[0] ? getSscSectionSeconds(sections[0]) : totalExamSeconds));
   const [showSubmitModal, setShowSubmitModal] = useState(false);
 
   const [questionTimes, setQuestionTimes] = useState({});
@@ -2101,28 +2137,31 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
 
       setSecondsLeft(prev => {
        if (prev <= 1) {
-            if (useSectionTimers && activeSectionIdxRef.current < sections.length - 1) {
-              const nextSecIdx = activeSectionIdxRef.current + 1;
-              const nextSecName = sections[nextSecIdx];
-              const nextSecSeconds = getSectionSeconds(nextSecName);
-              const firstQIdx = questions.findIndex((q) => q.section === nextSecName);
+            if ((isSscFullMock || useSectionTimers) && activeSectionIdxRef.current < sections.length - 1) {
+            const nextSecIdx = activeSectionIdxRef.current + 1;
+            const nextSecName = sections[nextSecIdx];
+            const nextSecSeconds = isSscFullMock
+              ? getSscSectionSeconds(nextSecName)
+              : getSectionSeconds(nextSecName);
+            const firstQIdx = questions.findIndex(
+              (q) => (q.section || '').trim() === String(nextSecName || '').trim()
+            );
 
-              activeSectionIdxRef.current = nextSecIdx;
-              secondsLeftRef.current = nextSecSeconds;
-              setActiveSectionIdx(nextSecIdx);
-              if (firstQIdx !== -1) {
-                setCurrentIdx(firstQIdx);
-                setStatuses((prevStatus) => {
-                  const nextStatus = { ...prevStatus };
-                  if (nextStatus[firstQIdx] === 'not_visited') {
-                    nextStatus[firstQIdx] = 'not_answered';
-                  }
-                  return nextStatus;
-                });
-              }
-              return nextSecSeconds;
+            activeSectionIdxRef.current = nextSecIdx;
+            secondsLeftRef.current = nextSecSeconds;
+            setActiveSectionIdx(nextSecIdx);
+            if (firstQIdx !== -1) {
+              setCurrentIdx(firstQIdx);
+              setStatuses((prevStatus) => {
+                const nextStatus = { ...prevStatus };
+                if (nextStatus[firstQIdx] === 'not_visited') {
+                  nextStatus[firstQIdx] = 'not_answered';
+                }
+                return nextStatus;
+              });
             }
-
+            return nextSecSeconds;
+          }
             clearInterval(timer);
             secondsLeftRef.current = 0;
             setTimeout(() => finalizeSubmission(true), 0);
@@ -2200,7 +2239,9 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
 
   const counts = useMemo(() => {
     let answered = 0, notAnswered = 0, notVisited = 0, marked = 0, answeredMarked = 0;
-    Object.values(statuses).forEach(st => {
+    const targetIndices = isSscFullMock ? visibleQuestionIndices : questions.map((_, i) => i);
+    targetIndices.forEach((idx) => {
+      const st = statuses[idx] || 'not_visited';
       if (st === 'answered') answered++;
       else if (st === 'not_answered') notAnswered++;
       else if (st === 'not_visited') notVisited++;
@@ -2208,7 +2249,7 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
       else if (st === 'answered_marked') answeredMarked++;
     });
     return { answered, notAnswered, notVisited, marked, answeredMarked };
-  }, [statuses]);
+  }, [statuses, isSscFullMock, visibleQuestionIndices, questions]);
 
   if (!currentQ) return null;
 
@@ -2227,23 +2268,38 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
       <div className="bg-slate-100 border-b border-slate-300 px-4 py-2 flex flex-wrap items-center justify-between gap-2 shrink-0">
         <div className="flex items-center gap-1.5 overflow-x-auto">
           <span className="text-xs font-bold text-slate-500 mr-1">Sections:</span>
-          {sections.map(sec => {
-            const firstIdxInSec = questions.findIndex(q => q.section === sec);
-            const isActive = currentQ.section === sec;
-            return (
-              <button
-                key={sec}
-                onClick={() => navigateToQuestion(firstIdxInSec)}
-                className={`px-3 py-1 rounded text-xs font-bold border transition whitespace-nowrap ${
-                  isActive
-                    ? 'bg-[#2c5aa0] text-white border-[#2c5aa0]'
-                    : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-200'
-                }`}
-              >
-                {sec}
-              </button>
-            );
-          })}
+          {sections.map((sec, sIdx) => {
+                const firstIdxInSec = questions.findIndex(
+                  (q) => (q.section || '').trim() === String(sec || '').trim()
+                );
+                const isLocked = isSscFullMock && sIdx > activeSectionIdx;
+                const isActive = isSscFullMock
+                  ? sIdx === activeSectionIdx
+                  : currentQ.section === sec;
+                return (
+                  <button
+                    key={sec}
+                    type="button"
+                    disabled={isLocked}
+                    onClick={() => {
+                      if (isLocked) return;
+                      if (isSscFullMock) {
+                        setActiveSectionIdx(sIdx);
+                      }
+                      if (firstIdxInSec !== -1) navigateToQuestion(firstIdxInSec);
+                    }}
+                    className={`px-3 py-1 rounded text-xs font-bold border transition whitespace-nowrap ${
+                      isLocked
+                        ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
+                        : isActive
+                        ? 'bg-[#2c5aa0] text-white border-[#2c5aa0]'
+                        : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-200'
+                    }`}
+                  >
+                    {isLocked ? `🔒 ${sec}` : sec}
+                  </button>
+                );
+              })}
         </div>
 
         <div className="flex items-center gap-3">
@@ -2394,27 +2450,29 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
             </div>
 
             <div className="p-3 grid grid-cols-5 gap-2">
-              {questions.map((_, idx) => {
-                const st = statuses[idx];
-                const isCurrent = idx === currentIdx;
+              {visibleQuestionIndices.map((qIdx, pos) => {
+                const st = statuses[qIdx];
+                const isCurrent = qIdx === currentIdx;
                 let badgeStyle = 'bg-slate-200 border border-slate-400 text-slate-800 rounded';
                 if (st === 'answered') badgeStyle = 'bg-emerald-600 text-white rounded-b-xl';
                 if (st === 'not_answered') badgeStyle = 'bg-rose-600 text-white rounded-t-xl';
                 if (st === 'marked' || st === 'answered_marked') badgeStyle = 'bg-purple-700 text-white rounded-full';
+                const displayNumber = isSscFullMock ? pos + 1 : qIdx + 1;
 
                 return (
                   <button
-                    key={idx}
-                    onClick={() => navigateToQuestion(idx)}
+                    key={qIdx}
+                    type="button"
+                    onClick={() => navigateToQuestion(qIdx)}
                     className={`h-9 font-bold text-xs flex items-center justify-center relative transition ${badgeStyle} ${
                       isCurrent ? 'ring-2 ring-offset-1 ring-amber-500' : ''
                     }`}
                   >
-                    {idx + 1}
+                    {displayNumber}
                     {st === 'answered_marked' && (
                       <span
                         title="Answered & Marked for Review"
-                        className="w-3.5 h-3.5 rounded-full bg-emerald-500 text-white text-[9px] font-black flex items-center justify-center absolute -bottom-0.5 -right-0.5 border border-white shadow-sm"
+                        className="w-3.5 h-3.5 rounded-full bg-emerald-500 text-white text-[9px] font-black flex items-center justify-center absolute -bottom-0.5 -right-0.5"
                       >
                         ✓
                       </span>
@@ -3316,6 +3374,84 @@ function MockEditorForm({ mock, onSave, onCancel }) {
   const [bulkJsonText, setBulkJsonText] = useState('');
   const [bulkError, setBulkError] = useState('');
 
+  const isFullMockEditor = form.subjectFolder === 'Full Mock';
+  const [sectionDraftTitle, setSectionDraftTitle] = useState('');
+  const [selectedEditorSection, setSelectedEditorSection] = useState('');
+
+  const editorSections = useMemo(() => {
+    const fromQuestions = (form.questions || [])
+      .map((q) => (q.section || '').trim())
+      .filter(Boolean);
+    const fromTimers = Object.keys(form.sectionTimers || {})
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const combined = [...new Set([...fromQuestions, ...fromTimers])];
+    if (combined.length > 0) return combined;
+    return form.category === 'SSC'
+      ? [
+          'General Intelligence and Reasoning',
+          'General Awareness',
+          'Quantitative Aptitude',
+          'English Comprehension',
+        ]
+      : ['General'];
+  }, [form.questions, form.sectionTimers, form.category]);
+
+  const activeEditorSection =
+    selectedEditorSection && editorSections.includes(selectedEditorSection)
+      ? selectedEditorSection
+      : editorSections[0] || 'General';
+
+  const handleAddOrRenameSection = (targetOldName = '') => {
+    const cleanTitle = sectionDraftTitle.trim();
+    if (!cleanTitle) return;
+    setForm((prev) => {
+      const nextTimers = { ...(prev.sectionTimers || {}) };
+      if (targetOldName && targetOldName !== cleanTitle) {
+        if (nextTimers[targetOldName] !== undefined && nextTimers[cleanTitle] === undefined) {
+          nextTimers[cleanTitle] = nextTimers[targetOldName];
+        }
+        delete nextTimers[targetOldName];
+      } else if (nextTimers[cleanTitle] === undefined && prev.category === 'SSC') {
+        nextTimers[cleanTitle] = 15;
+      }
+
+      const nextQuestions = (prev.questions || []).map((q) => {
+        const qSec = (q.section || '').trim();
+        if (targetOldName && qSec === targetOldName) {
+          return { ...q, section: cleanTitle };
+        }
+        return q;
+      });
+
+      return {
+        ...prev,
+        sectionTimers: nextTimers,
+        questions: nextQuestions,
+      };
+    });
+    setSelectedEditorSection(cleanTitle);
+    setSectionDraftTitle('');
+  };
+
+  const handleAssignQuestionsToSection = (parsedList) => {
+    if (!Array.isArray(parsedList) || parsedList.length === 0) return;
+    const targetSec = activeEditorSection;
+    const tagged = parsedList.map((q) => ({
+      ...q,
+      section: targetSec,
+    }));
+    setForm((prev) => {
+      const others = (prev.questions || []).filter(
+        (q) => (q.section || '').trim() !== targetSec
+      );
+      return {
+        ...prev,
+        questions: [...others, ...tagged],
+      };
+    });
+  };
+
  const handleCategoryChange = (newCategory) => {
     const validSubs = EXAM_FOLDERS[newCategory] || ['General'];
     const defaultSub = validSubs[0];
@@ -3360,7 +3496,9 @@ function MockEditorForm({ mock, onSave, onCancel }) {
         ...form.questions,
         {
           id: `q-${Date.now()}`,
-       section: (form.title && form.title.trim()) || (form.subjectFolder && form.subjectFolder !== 'Full Mock' ? form.subjectFolder : 'General Awareness'),
+       section: isFullMockEditor
+            ? activeEditorSection
+            : (form.title && form.title.trim()) || (form.subjectFolder && form.subjectFolder !== 'Full Mock' ? form.subjectFolder : 'General Awareness'),
           text: '',
           options: ['', '', '', ''],
           correctIndex: 0,
@@ -3401,11 +3539,27 @@ function MockEditorForm({ mock, onSave, onCancel }) {
         !form.questions[0].text.trim() &&
         form.questions[0].options.every(o => !o.trim());
 
-      setForm({
-        ...form,
-        questions: (replaceExisting || hasOnlyBlankStarter)
-          ? normalized
-          : [...form.questions, ...normalized]
+      const taggedNormalized = isFullMockEditor
+        ? normalized.map((q) => ({ ...q, section: activeEditorSection }))
+        : normalized;
+
+      setForm((prev) => {
+        if (isFullMockEditor) {
+          const otherSectionQuestions = (prev.questions || []).filter(
+            (q) => (q.section || '').trim() !== activeEditorSection
+          );
+          return {
+            ...prev,
+            questions: [...otherSectionQuestions, ...taggedNormalized],
+          };
+        }
+        return {
+          ...prev,
+          questions:
+            replaceExisting || hasOnlyBlankStarter
+              ? taggedNormalized
+              : [...prev.questions, ...taggedNormalized],
+        };
       });
       setBulkJsonText('');
       setShowBulkBox(false);
@@ -3548,6 +3702,57 @@ function MockEditorForm({ mock, onSave, onCancel }) {
               Set minutes per section. When a section&apos;s timer ends, the exam automatically moves to the next section.
             </p>
           </div>
+          <div className="bg-white/90 p-3 rounded-lg border border-amber-200 space-y-2.5">
+            <div className="flex flex-wrap items-center gap-2">
+              <input
+                type="text"
+                value={sectionDraftTitle}
+                onChange={(e) => setSectionDraftTitle(e.target.value)}
+                placeholder="Enter section title (e.g., Reasoning, Quant)..."
+                className="flex-1 min-w-[200px] px-2.5 py-1.5 text-xs border border-slate-300 rounded bg-white text-slate-800"
+              />
+              <button
+                type="button"
+                onClick={() => handleAddOrRenameSection('')}
+                className="px-3 py-1.5 rounded text-xs font-bold bg-[#2c5aa0] text-white hover:bg-blue-800"
+              >
+                + Add Section
+              </button>
+              <button
+                type="button"
+                onClick={() => handleAddOrRenameSection(activeEditorSection)}
+                className="px-3 py-1.5 rounded text-xs font-bold bg-amber-600 text-white hover:bg-amber-700"
+              >
+                Rename &ldquo;{activeEditorSection}&rdquo;
+              </button>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-[11px] font-bold text-slate-600 mr-1">
+                Active Question Paper Section:
+              </span>
+              {editorSections.map((secTitle) => {
+                const countInSec = (form.questions || []).filter(
+                  (q) => (q.section || '').trim() === secTitle
+                ).length;
+                const isSelectedSec = activeEditorSection === secTitle;
+                return (
+                  <button
+                    key={secTitle}
+                    type="button"
+                    onClick={() => setSelectedEditorSection(secTitle)}
+                    className={`px-2.5 py-1 rounded text-[11px] font-bold border transition ${
+                      isSelectedSec
+                        ? 'bg-[#2c5aa0] text-white border-[#2c5aa0]'
+                        : 'bg-slate-50 text-slate-700 border-slate-300 hover:bg-slate-100'
+                    }`}
+                  >
+                    {secTitle} ({countInSec} Qs)
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           {detectedSections.length === 0 ? (
             <p className="text-xs text-amber-800">
@@ -3638,7 +3843,15 @@ function MockEditorForm({ mock, onSave, onCancel }) {
           </button>
         </div>
 
-        {form.questions.map((q, qIdx) => (
+        {form.questions
+                .map((q, qIdx) => ({ q, qIdx }))
+                .filter(({ q }) =>
+                  <span className="text-xs font-bold text-indigo-600">Question #{isFullMockEditor ? secPos + 1 : qIdx + 1}</span>
+```[cite: 17]
+
+Make sure the leading indentation on line 3849 matches what is currently there so the JSX stays neat and easy to read[cite: 17]. Once that's in place, you're ready to click **Commit changes...** and let Netlify build[cite: 17].
+                )
+                .map(({ q, qIdx }, secPos) => (
           <div key={q.id} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-xs font-bold text-indigo-600">Question #{qIdx + 1}</span>
