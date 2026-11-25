@@ -3846,15 +3846,12 @@ function MockEditorForm({ mock, onSave, onCancel }) {
         {form.questions
                 .map((q, qIdx) => ({ q, qIdx }))
                 .filter(({ q }) =>
-                  <span className="text-xs font-bold text-indigo-600">Question #{isFullMockEditor ? secPos + 1 : qIdx + 1}</span>
-```[cite: 17]
-
-Make sure the leading indentation on line 3849 matches what is currently there so the JSX stays neat and easy to read[cite: 17]. Once that's in place, you're ready to click **Commit changes...** and let Netlify build[cite: 17].
+                  !isFullMockEditor || (q.section || '').trim() === activeEditorSection
                 )
                 .map(({ q, qIdx }, secPos) => (
-          <div key={q.id} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-xs font-bold text-indigo-600">Question #{qIdx + 1}</span>
+                  <div key={q.id} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-bold text-indigo-600">Question #{isFullMockEditor ? secPos + 1 : qIdx + 1}</span>
               <button
                 type="button"
                 onClick={() => removeQuestion(qIdx)}
