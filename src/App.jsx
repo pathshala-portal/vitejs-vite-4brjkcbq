@@ -2048,10 +2048,7 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
   useEffect(() => { answersRef.current = answers; }, [answers]);
   useEffect(() => { questionTimesRef.current = questionTimes; }, [questionTimes]);
   useEffect(() => { secondsLeftRef.current = secondsLeft; }, [secondsLeft]);
-    const init = {};
-    questions.forEach((_, idx) => { init[idx] = idx === 0 ? 'not_answered' : 'not_visited'; });
-    return init;
-  });
+    
   const [secondsLeft, setSecondsLeft] = useState(() => (isSscFullMock && sections[0] ? getSscSectionSeconds(sections[0]) : totalExamSeconds));
   const [showSubmitModal, setShowSubmitModal] = useState(false);
 
@@ -2060,14 +2057,7 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
   const currentIdxRef = useRef(currentIdx);
   const answersRef = useRef(answers);
   const questionTimesRef = useRef(questionTimes);
-  const secondsLeftRef = useRef(secondsLeft);
-  const hasSubmittedRef = useRef(false);
-
-  useEffect(() => { currentIdxRef.current = currentIdx; }, [currentIdx]);
-  useEffect(() => { answersRef.current = answers; }, [answers]);
-  useEffect(() => { questionTimesRef.current = questionTimes; }, [questionTimes]);
-  useEffect(() => { secondsLeftRef.current = secondsLeft; }, [secondsLeft]);
-
+  
   const useSectionTimers =
     mock.subjectFolder === 'Full Mock' &&
     sections.length > 0 &&
