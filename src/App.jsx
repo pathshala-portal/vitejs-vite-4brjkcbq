@@ -2061,7 +2061,7 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
     }
   }, [mock.id, useSectionTimers]);
 
-  const activeSectionIdxRef = useRef(activeSectionIdx);
+ 
 
   useEffect(() => {
     activeSectionIdxRef.current = activeSectionIdx;
