@@ -2000,12 +2000,19 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
     if (!isSscFullMock || !activeSectionName) {
       return questions.map((_, idx) => idx);
     }
+    const hasSectionTags = questions.some((q) => Boolean((q?.section || '').trim()));
+    if (!hasSectionTags) {
+      const start = activeSectionIdx * 25;
+      return questions
+        .map((_, idx) => idx)
+        .slice(start, start + 25);
+    }
     return questions
       .map((q, idx) => ({ q, idx }))
-      .filter(({ q }) => (q.section || '').trim() === activeSectionName.trim())
+      .filter(({ q }) => (q?.section || '').trim() === activeSectionName.trim())
       .slice(0, 25)
       .map(({ idx }) => idx);
-  }, [isSscFullMock, activeSectionName, questions]);
+  }, [isSscFullMock, activeSectionName, activeSectionIdx, questions]);
   useEffect(() => {
     if (!isSscFullMock || visibleQuestionIndices.length === 0) return;
     if (!visibleQuestionIndices.includes(currentIdx)) {
