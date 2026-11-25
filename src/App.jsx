@@ -2053,8 +2053,7 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
     return (Number.isFinite(mins) && mins > 0 ? mins : 15) * 60;
   };
 
-  const [activeSectionIdx, setActiveSectionIdx] = useState(0);
-
+ 
   useEffect(() => {
     if (useSectionTimers && sections[0]) {
       setActiveSectionIdx(0);
@@ -2063,7 +2062,7 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
   }, [mock.id, useSectionTimers]);
 
   const activeSectionIdxRef = useRef(activeSectionIdx);
-  useEffect(() => {
+  
     activeSectionIdxRef.current = activeSectionIdx;
   }, [activeSectionIdx]);
   const finalizeSubmission = useCallback((isAutoSubmit = false) => {
