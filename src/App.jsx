@@ -2049,15 +2049,7 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
   useEffect(() => { questionTimesRef.current = questionTimes; }, [questionTimes]);
   useEffect(() => { secondsLeftRef.current = secondsLeft; }, [secondsLeft]);
     
-  const [secondsLeft, setSecondsLeft] = useState(() => (isSscFullMock && sections[0] ? getSscSectionSeconds(sections[0]) : totalExamSeconds));
-  const [showSubmitModal, setShowSubmitModal] = useState(false);
-
-  const [questionTimes, setQuestionTimes] = useState({});
-
-  const currentIdxRef = useRef(currentIdx);
-  const answersRef = useRef(answers);
-  const questionTimesRef = useRef(questionTimes);
-  
+    
   const useSectionTimers =
     mock.subjectFolder === 'Full Mock' &&
     sections.length > 0 &&
