@@ -1996,6 +1996,18 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
 
   const activeSectionName = sections[activeSectionIdx] || '';
 
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [statuses, setStatuses] = useState(() => {
+    const init = {};
+    questions.forEach((_, idx) => { init[idx] = idx === 0 ? 'not_answered' : 'not_visited'; });
+    return init;
+  });
+  const [secondsLeft, setSecondsLeft] = useState(() => (isSscFullMock && sections[0] ? getSscSectionSeconds(sections[0]) : totalExamSeconds));
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
+
+  const [questionTimes, setQuestionTimes] = useState({});
+
   const visibleQuestionIndices = useMemo(() => {
     if (!isSscFullMock || !activeSectionName) {
       return questions.map((_, idx) => idx);
@@ -2013,6 +2025,7 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
       .slice(0, 25)
       .map(({ idx }) => idx);
   }, [isSscFullMock, activeSectionName, activeSectionIdx, questions]);
+
   useEffect(() => {
     if (!isSscFullMock || visibleQuestionIndices.length === 0) return;
     if (!visibleQuestionIndices.includes(currentIdx)) {
@@ -2025,9 +2038,16 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
     }
   }, [isSscFullMock, activeSectionIdx, visibleQuestionIndices, currentIdx]);
 
-  const [currentIdx, setCurrentIdx] = useState(0);
-  const [answers, setAnswers] = useState({});
-  const [statuses, setStatuses] = useState(() => {
+  const currentIdxRef = useRef(currentIdx);
+  const answersRef = useRef(answers);
+  const questionTimesRef = useRef(questionTimes);
+  const secondsLeftRef = useRef(secondsLeft);
+  const hasSubmittedRef = useRef(false);
+
+  useEffect(() => { currentIdxRef.current = currentIdx; }, [currentIdx]);
+  useEffect(() => { answersRef.current = answers; }, [answers]);
+  useEffect(() => { questionTimesRef.current = questionTimes; }, [questionTimes]);
+  useEffect(() => { secondsLeftRef.current = secondsLeft; }, [secondsLeft]);
     const init = {};
     questions.forEach((_, idx) => { init[idx] = idx === 0 ? 'not_answered' : 'not_visited'; });
     return init;
