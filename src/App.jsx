@@ -2005,6 +2005,31 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
   useEffect(() => { questionTimesRef.current = questionTimes; }, [questionTimes]);
   useEffect(() => { secondsLeftRef.current = secondsLeft; }, [secondsLeft]);
 
+  const useSectionTimers =
+    mock.subjectFolder === 'Full Mock' &&
+    sections.length > 0 &&
+    mock.sectionTimers &&
+    typeof mock.sectionTimers === 'object' &&
+    Object.keys(mock.sectionTimers).length > 0;
+
+  const getSectionSeconds = (secName) => {
+    const mins = Number(mock.sectionTimers?.[secName]);
+    return (Number.isFinite(mins) && mins > 0 ? mins : 15) * 60;
+  };
+
+  const [activeSectionIdx, setActiveSectionIdx] = useState(0);
+
+  useEffect(() => {
+    if (useSectionTimers && sections[0]) {
+      setActiveSectionIdx(0);
+      setSecondsLeft(getSectionSeconds(sections[0]));
+    }
+  }, [mock.id, useSectionTimers]);
+
+  const activeSectionIdxRef = useRef(activeSectionIdx);
+  useEffect(() => {
+    activeSectionIdxRef.current = activeSectionIdx;
+  }, [activeSectionIdx]);
   const finalizeSubmission = useCallback((isAutoSubmit = false) => {
     if (hasSubmittedRef.current) return;
     hasSubmittedRef.current = true;
@@ -2075,19 +2100,41 @@ function TcsIonExamInterface({ mock, student, onSubmitExam, onExit }) {
       setQuestionTimes(updatedTimes);
 
       setSecondsLeft(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          secondsLeftRef.current = 0;
-          setTimeout(() => finalizeSubmission(true), 0);
-          return 0;
-        }
+       if (prev <= 1) {
+            if (useSectionTimers && activeSectionIdxRef.current < sections.length - 1) {
+              const nextSecIdx = activeSectionIdxRef.current + 1;
+              const nextSecName = sections[nextSecIdx];
+              const nextSecSeconds = getSectionSeconds(nextSecName);
+              const firstQIdx = questions.findIndex((q) => q.section === nextSecName);
+
+              activeSectionIdxRef.current = nextSecIdx;
+              secondsLeftRef.current = nextSecSeconds;
+              setActiveSectionIdx(nextSecIdx);
+              if (firstQIdx !== -1) {
+                setCurrentIdx(firstQIdx);
+                setStatuses((prevStatus) => {
+                  const nextStatus = { ...prevStatus };
+                  if (nextStatus[firstQIdx] === 'not_visited') {
+                    nextStatus[firstQIdx] = 'not_answered';
+                  }
+                  return nextStatus;
+                });
+              }
+              return nextSecSeconds;
+            }
+
+            clearInterval(timer);
+            secondsLeftRef.current = 0;
+            setTimeout(() => finalizeSubmission(true), 0);
+            return 0;
+          }
         secondsLeftRef.current = prev - 1;
         return prev - 1;
       });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [finalizeSubmission]);
+ }, [finalizeSubmission, useSectionTimers, sections, questions]);
 
   const currentQ = questions[currentIdx];
 
@@ -2772,14 +2819,31 @@ function AdminDashboard({
   const [editingNote, setEditingNote] = useState(null);
   const [selectedMockFilter, setSelectedMockFilter] = useState('ALL');
   const [adminFolderFilter, setAdminFolderFilter] = useState('ALL');
+  const [resultsSortBy, setResultsSortBy] = useState('recent');
 
   const students = users.filter(u => u.role === 'student');
-
-  const filteredAttempts = useMemo(() => {
+const filteredAttempts = useMemo(() => {
     const list = selectedMockFilter === 'ALL'
       ? [...attempts]
       : attempts.filter(a => a.mockId === selectedMockFilter);
-    return list.sort((a, b) => (b.score - a.score) || (b.accuracy - a.accuracy) || ((a.totalTimeSeconds || 99999) - (b.totalTimeSeconds || 99999)));
+
+    const getAttemptTime = (att) => {
+      const parsed = Date.parse(att.submittedAt || att.attemptedAt || '');
+      if (!Number.isNaN(parsed)) return parsed;
+      const idNum = Number(String(att.id || '').replace(/\D/g, ''));
+      return Number.isFinite(idNum) ? idNum : 0;
+    };
+
+    return list.sort((a, b) => {
+      if (resultsSortBy === 'recent') {
+        return getAttemptTime(b) - getAttemptTime(a);
+      }
+      if (resultsSortBy === 'oldest') {
+        return getAttemptTime(a) - getAttemptTime(b);
+      }
+      return (b.score - a.score) || (b.accuracy - a.accuracy) || ((a.totalTimeSeconds || 99999) - (b.totalTimeSeconds || 99999));
+    });
+  }, [attempts, selectedMockFilter, resultsSortBy]);
   }, [attempts, selectedMockFilter]);
 
   const adminFilteredMocks = useMemo(() => {
@@ -3027,6 +3091,17 @@ function AdminDashboard({
                 <h3 className="font-bold text-slate-900">Candidate Mock Performance & Leaderboard</h3>
                 <p className="text-xs text-slate-500">View attempted count, correct/wrong answers, net score, accuracy, and time taken for every student.</p>
               </div>
+              <div className="flex flex-wrap items-center gap-2">
+              <select
+                value={resultsSortBy}
+                onChange={(e) => setResultsSortBy(e.target.value)}
+                className="px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-bold bg-white outline-none"
+              >
+                <option value="recent">Sort: Most Recent First</option>
+                <option value="oldest">Sort: Oldest First</option>
+                <option value="score">Sort: Highest Score</option>
+              </select>
+
               <select
                 value={selectedMockFilter}
                 onChange={(e) => setSelectedMockFilter(e.target.value)}
@@ -3037,6 +3112,7 @@ function AdminDashboard({
                   <option key={m.id} value={m.id}>{m.category} ({getMockSubCategory(m)}) — {m.title}</option>
                 ))}
               </select>
+            </div>
             </div>
 
             {filteredAttempts.length === 0 ? (
@@ -3341,6 +3417,35 @@ function MockEditorForm({ mock, onSave, onCancel }) {
 
   const subFolderOptions = EXAM_FOLDERS[form.category] || ['General'];
 
+  const isFullMock = form.subjectFolder === 'Full Mock';
+
+  const detectedSections = useMemo(() => {
+    const fromQuestions = (form.questions || [])
+      .map((q) => (q.section || '').trim())
+      .filter(Boolean);
+    const fromTimers = Object.keys(form.sectionTimers || {});
+    return [...new Set([...fromQuestions, ...fromTimers])];
+  }, [form.questions, form.sectionTimers]);
+
+  const handleSectionMinutesChange = (sectionName, minutesValue) => {
+    const mins = Math.max(1, Number(minutesValue) || 1);
+    setForm((prev) => {
+      const nextTimers = {
+        ...(prev.sectionTimers || {}),
+        [sectionName]: mins,
+      };
+      const totalMins = Object.values(nextTimers).reduce(
+        (sum, val) => sum + (Number(val) || 0),
+        0
+      );
+      return {
+        ...prev,
+        sectionTimers: nextTimers,
+        durationMinutes: totalMins > 0 ? totalMins : prev.durationMinutes,
+      };
+    });
+  };
+
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
       <div className="flex items-center justify-between border-b border-slate-100 pb-4">
@@ -3436,6 +3541,43 @@ function MockEditorForm({ mock, onSave, onCancel }) {
         </div>
       </div>
 
+      {isFullMock && (
+        <div className="p-4 rounded-xl bg-amber-50/70 border border-amber-200 space-y-3">
+          <div>
+            <h4 className="text-sm font-bold text-slate-900">Full Mock Section-Wise Timers</h4>
+            <p className="text-xs text-slate-600">
+              Set minutes per section. When a section&apos;s timer ends, the exam automatically moves to the next section.
+            </p>
+          </div>
+
+          {detectedSections.length === 0 ? (
+            <p className="text-xs text-amber-800">
+              Add questions with section names (e.g., English, Reasoning) to set section timers.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {detectedSections.map((sec) => (
+                <div key={sec} className="bg-white p-3 rounded-lg border border-slate-200 flex items-center justify-between gap-2">
+                  <span className="text-xs font-bold text-slate-800 truncate" title={sec}>
+                    {sec}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      min="1"
+                      max="300"
+                      value={form.sectionTimers?.[sec] ?? 15}
+                      onChange={(e) => handleSectionMinutesChange(sec, e.target.value)}
+                      className="w-16 px-2 py-1 text-xs font-semibold border border-slate-300 rounded text-right"
+                    />
+                    <span className="text-[11px] text-slate-500">min</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
       <div className="rounded-xl border border-indigo-200 bg-indigo-50/50 p-4 space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
